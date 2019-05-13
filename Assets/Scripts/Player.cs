@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
     // Player handles the player's Hammo, time, menu, and win/lose conditions
 
-    public int MaxHammo = 20;
+    public int MaxHammo = 30;
     public int StartingHammo = 10;
     [SerializeField] private int Hammo;
     private float _walkSpeed;
@@ -25,6 +26,7 @@ public class Player : MonoBehaviour
 
     public Canvas WinScreen;
     public TextMeshProUGUI WinTime;
+    public TextMeshProUGUI HighScoreTime;
 
     public Canvas LoseScreen;
     public Canvas StartScreen;
@@ -36,6 +38,8 @@ public class Player : MonoBehaviour
     {
         WinScreen.enabled = true;
         WinTime.text = "Time: " + FloatToTime(_time);
+        ScoreTracker.AddScore(SceneManager.GetActiveScene().buildIndex, _time);
+        HighScoreTime.text = FloatToTime(ScoreTracker.GetScore(SceneManager.GetActiveScene().buildIndex));
         Time.timeScale = 0f;
     }
 

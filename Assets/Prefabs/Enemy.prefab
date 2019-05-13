@@ -4693,7 +4693,7 @@ ParticleSystem:
 --- !u!199 &7243386763847816277
 ParticleSystemRenderer:
   serializedVersion: 6
-  m_ObjectHideFlags: 2
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -4968,6 +4968,7 @@ MonoBehaviour:
   AudioSource: {fileID: 2121236075}
   DeathEffect: {fileID: 6417419737288014430, guid: a9fc15c61143fea49b2f8a1e74abaf9b,
     type: 3}
+  Beam: {fileID: 307037059281066078, guid: 0b8c9e748970f9347902f1f04eeaf554, type: 3}
 --- !u!195 &5734527469351260104
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -9795,7 +9796,7 @@ ParticleSystem:
 --- !u!199 &8772172251649100228
 ParticleSystemRenderer:
   serializedVersion: 6
-  m_ObjectHideFlags: 2
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}

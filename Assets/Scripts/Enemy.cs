@@ -29,6 +29,7 @@ public class Enemy : MonoBehaviour
     public AudioClip DeathSound;
     public AudioSource AudioSource;
     public GameObject DeathEffect;
+    public GameObject Beam;
 
     // Start is called before the first frame update
     void Start()
@@ -78,18 +79,16 @@ public class Enemy : MonoBehaviour
         if (Stunned && Vector3.Dot(GetComponent<Rigidbody>().velocity, transform.up) <= 0
         && Physics.Raycast(transform.position + transform.up, -transform.up, 1.01f, _layerMask))
         {
-            Debug.Log(Vector3.Dot(GetComponent<Rigidbody>().velocity.normalized, transform.up));
             Stunned = false;
             GetComponent<NavMeshAgent>().enabled = true;
             GetComponent<Rigidbody>().isKinematic = true;
             StandingHitBox.enabled = true;
             StunnedHitBox.enabled = false;
             StunParticles.Stop();
-        } 
+        }
 
         if (!Alerted && Vector3.Distance(Target.position, transform.position) < AlertRange
-                     && !Physics.Linecast(transform.position + Vector3.up, Target.transform.position + Vector3.up,
-                         _layerMask))
+                     && !Physics.Linecast(transform.position + Vector3.up, Target.transform.position + Vector3.up, _layerMask))
         {
             Alerted = true;
         }
@@ -98,9 +97,19 @@ public class Enemy : MonoBehaviour
         {
             _attacking = false;
             AudioSource.PlayOneShot(FireSound);
-            if (!Physics.Linecast(transform.position + Vector3.up, Target.transform.position + Vector3.up, _layerMask))
+            GameObject beam = Instantiate(Beam);
+            beam.GetComponent<Beam>().startPoint = transform.position + Vector3.up;
+
+
+            RaycastHit hit;
+            if (!Physics.Linecast(transform.position + Vector3.up, Target.transform.position + Vector3.up, out hit, _layerMask))
             {
+                beam.GetComponent<Beam>().endPoint = Target.transform.position;
                 PlayerLink.playerLink.IncrementHammo(-1);
+            }
+            else
+            {
+                beam.GetComponent<Beam>().endPoint = hit.point;
             }
         }
         else if (!Stunned && Alerted && _attackTimer == 0)

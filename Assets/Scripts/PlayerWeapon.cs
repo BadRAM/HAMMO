@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class PlayerWeapon : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class PlayerWeapon : MonoBehaviour
     public Transform BeamStartPoint;
     public Transform RocketStartPoint;
     public GameObject Rocket;
+    public GameObject Beam;
     public float RocketCooldown = 1f;
     private float _rocketHeat;
     private float _grenadeActive;
@@ -45,34 +47,46 @@ public class PlayerWeapon : MonoBehaviour
 
         if (WeaponInUse == 1)
         {
-            // Beam Annhilator code
+            // Beam code
             GrenadeCrosshair.SetActive(false);
             BeamCrosshair.SetActive(true);
 
             if(Input.GetButtonDown("Fire1") && Time.timeScale == 1)
             {
                 GetComponent<AudioSource>().PlayOneShot(BeamFireSound);
+                GameObject beam = Instantiate(Beam);
+                beam.GetComponent<Beam>().startPoint = RocketStartPoint.position;
+
                 GetComponent<Player>().IncrementHammo(-1);
                 RaycastHit hit;
-                if(Physics.Raycast(BeamStartPoint.position, BeamStartPoint.forward, out hit) && hit.transform.tag == "Enemy")
+                if(Physics.Raycast(BeamStartPoint.position, BeamStartPoint.forward, out hit))
                 {
-                    if (hit.transform.GetComponent<Enemy>().Stunned)
-                    {
-                        GetComponent<Player>().IncrementHammo(4);
-                    }
-                    else
-                    {
-                        GetComponent<Player>().IncrementHammo(2);
-                    }
-                    hit.transform.GetComponent<Enemy>().Kill();
-                }
-                //TODO: add particle effect for railgun
+                    beam.GetComponent<Beam>().endPoint = hit.point;
 
+                    if (hit.transform.CompareTag("Enemy"))
+                    {
+
+                        if (hit.transform.GetComponent<Enemy>().Stunned)
+                        {
+                            GetComponent<Player>().IncrementHammo(4);
+                        }
+                        else
+                        {
+                            GetComponent<Player>().IncrementHammo(2);
+                        }
+
+                        hit.transform.GetComponent<Enemy>().Kill();
+                    }
+                }
+                else
+                {
+                    beam.GetComponent<Beam>().endPoint = BeamStartPoint.position + BeamStartPoint.forward * 10000f;
+                }
             }
         }
         else
         {
-            // Grenade Projector code
+            // Rocket Launcher code
             GrenadeCrosshair.SetActive(true);
             BeamCrosshair.SetActive(false);
 

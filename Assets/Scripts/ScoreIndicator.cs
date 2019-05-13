@@ -1,24 +1,22 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
 public class ScoreIndicator : MonoBehaviour
 {
-    public TextMeshProUGUI Level1ScoreText;
-    public TextMeshProUGUI Level2ScoreText;
+    public int levelID;
+    public TextMeshProUGUI textMesh;
 
-    // Start is called before the first frame update
-    void Start()
+    public void Start()
     {
-        
+        UpdateText();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void UpdateText()
     {
-        Level1ScoreText.text = FloatToTime(ScoreTracker.Level1Score);
-        Level2ScoreText.text = FloatToTime(ScoreTracker.Level2Score);
+        textMesh.text = FloatToTime(ScoreTracker.GetScore(levelID));
     }
 
     string FloatToTime(float time)
