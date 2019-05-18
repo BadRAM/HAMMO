@@ -37,15 +37,29 @@ public class Player : MonoBehaviour
     public void Goal()
     {
         WinScreen.enabled = true;
-        WinTime.text = "Time: " + FloatToTime(_time);
+        WinTime.text = FloatToTime(_time);
         ScoreTracker.AddScore(SceneManager.GetActiveScene().buildIndex, _time);
         HighScoreTime.text = FloatToTime(ScoreTracker.GetScore(SceneManager.GetActiveScene().buildIndex));
         Time.timeScale = 0f;
     }
 
+    public void Kill()
+    {
+        Time.timeScale = 0f;
+        LoseScreen.enabled = true;
+    }
+
     public void IncrementHammo(int i)
     {
         Hammo += i;
+        if (Hammo < 0)
+        {
+            Kill();
+        }
+        else if (Hammo > MaxHammo)
+        {
+            Hammo = MaxHammo;
+        }
     }
 
     public void TogglePause()
@@ -120,13 +134,6 @@ public class Player : MonoBehaviour
     void FixedUpdate()
     {
         _time += Time.fixedDeltaTime;
-
-        // kill the player if hammo is less than zero
-        if (Hammo < 0)
-        {
-            Time.timeScale = 0f;
-            LoseScreen.enabled = true;
-        }
 
         if (transform.position.y < -50)
         {

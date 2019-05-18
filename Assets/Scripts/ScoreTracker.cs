@@ -33,6 +33,7 @@ public static class ScoreTracker
 
     public static float GetScore(int levelID)
     {
+        LoadScores();
         float score = 0f;
         if (_scores.ContainsKey(levelID))
         {

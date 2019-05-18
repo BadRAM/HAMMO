@@ -4964,7 +4964,7 @@ MonoBehaviour:
   ChargeDuration: 2.5
   ChargeSound: {fileID: 8300000, guid: be53de3759d698f4da277d6af2ce1af4, type: 3}
   FireSound: {fileID: 8300000, guid: 44c2249f2dee5884b91b7c5b0f0329a7, type: 3}
-  DeathSound: {fileID: 8300000, guid: 2e561740b9f9c93479dc2dbc5028dc2c, type: 3}
+  DeathSound: {fileID: 8300000, guid: 98a0f8aa647320f4985fc31b249a7dd2, type: 3}
   AudioSource: {fileID: 2121236075}
   DeathEffect: {fileID: 6417419737288014430, guid: a9fc15c61143fea49b2f8a1e74abaf9b,
     type: 3}

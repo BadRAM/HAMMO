@@ -46,6 +46,7 @@ public class Enemy : MonoBehaviour
         GetComponent<Rigidbody>().isKinematic = false;
         
         Alive = true;
+        Alerted = false;
         
         Stun();
         

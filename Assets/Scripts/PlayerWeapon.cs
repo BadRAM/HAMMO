@@ -57,7 +57,6 @@ public class PlayerWeapon : MonoBehaviour
                 GameObject beam = Instantiate(Beam);
                 beam.GetComponent<Beam>().startPoint = RocketStartPoint.position;
 
-                GetComponent<Player>().IncrementHammo(-1);
                 RaycastHit hit;
                 if(Physics.Raycast(BeamStartPoint.position, BeamStartPoint.forward, out hit))
                 {
@@ -68,18 +67,23 @@ public class PlayerWeapon : MonoBehaviour
 
                         if (hit.transform.GetComponent<Enemy>().Stunned)
                         {
-                            GetComponent<Player>().IncrementHammo(4);
+                            GetComponent<Player>().IncrementHammo(3); // takes cost of firing into account. 4 - 1 = 3
                         }
                         else
                         {
-                            GetComponent<Player>().IncrementHammo(2);
+                            GetComponent<Player>().IncrementHammo(1); // 2 - 1 = 1
                         }
 
                         hit.transform.GetComponent<Enemy>().Kill();
                     }
+                    else
+                    {
+                        GetComponent<Player>().IncrementHammo(-1);
+                    }
                 }
                 else
                 {
+                    GetComponent<Player>().IncrementHammo(-1);
                     beam.GetComponent<Beam>().endPoint = BeamStartPoint.position + BeamStartPoint.forward * 10000f;
                 }
             }
