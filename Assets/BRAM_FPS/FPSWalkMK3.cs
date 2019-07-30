@@ -1,12 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class FPSWalkMK3 : MonoBehaviour
 {
 
     // this is a First Person movement controller that uses a box collider and a boxcast to interact with map geometry.
-
+    
+    //TODO:
+    //dont stop upwards momentum on footbox collisions, and remove _jumpCooldown
+    //smooth out vertical camera movement on step up
+    // B O U N C E
+    //fix the little boost for stationary players in air.
 
     [Header("Size")]
     public float Height = 2;
@@ -25,9 +32,14 @@ public class FPSWalkMK3 : MonoBehaviour
     public float JumpForce = 5;
     [SerializeField] private bool _grounded;
     public bool LockLook;
+    public float BounceChargeTime = 0.5f;
+    public float BounceEffectiveness = 0.5f;
 
-    [Header("Sounds")]
+    [Header("Effects")]
     public AudioClip JumpSound;
+    public ParticleSystem BounceParticles;
+    public RectTransform BounceMeter;
+    public TextMeshProUGUI BounceReady;
 
     // --- Private Variables ---
 
@@ -38,17 +50,41 @@ public class FPSWalkMK3 : MonoBehaviour
     // Input handling
     private float _cameraX;
     private float _cameraY;
-    private bool _jumpHeld;
+    private bool _jumpLock;
 
     // Status
-    private int _jumpcooldown;
+    private int _jumpcooldown; //only necessary for preventing boxcast from stopping jump
+    private float _bounceCharge;
+    private bool _bounceReady;
     private Vector3 _normal;
+    private bool _sliding;
 
     // Boxcast parameters
     private Vector3 _boxCastHalfExtents;
     private int _layerMask;
 
+    private void Jump()
+    {
+        GetComponent<Rigidbody>().velocity = GetComponent<Rigidbody>().velocity + transform.up * JumpForce;
+        _grounded = false;
+        _jumpcooldown = 3;
+        _jumpLock = true;
+        GetComponent<AudioSource>().PlayOneShot(JumpSound);
+    }
 
+    private void Bounce()
+    {
+        Vector3 v = GetComponent<Rigidbody>().velocity;
+        GetComponent<Rigidbody>().AddForce(_rotator.transform.up * (v.magnitude * BounceEffectiveness * (_bounceCharge / BounceChargeTime) + v.magnitude), ForceMode.VelocityChange);
+        Debug.Log("bounced with strength: " + _bounceCharge / BounceChargeTime);
+        _grounded = false;
+        _jumpcooldown = 3;
+        _jumpLock = true;
+        GetComponent<AudioSource>().PlayOneShot(JumpSound);
+        BounceParticles.Play();
+        GetComponent<Player>().IncrementHammo(-1);
+    }
+    
     // Use this for initialization
     void Start()
     {
@@ -68,30 +104,71 @@ public class FPSWalkMK3 : MonoBehaviour
     void FixedUpdate()
     {
         //check for a collision with ground, and stop the player if one is detected
-
-        _grounded = false;
+        
         RaycastHit hit;
         _normal = Vector3.up;
         if (_jumpcooldown == 0 && 
             Physics.BoxCast(transform.position + transform.up * (Height - (Width / 2)), _boxCastHalfExtents, -transform.up, out hit, transform.rotation, Height - Width, _layerMask)
             && !hit.collider.isTrigger && Vector3.Dot(GetComponent<Rigidbody>().velocity, hit.normal) < 0)
         {
+            // move to collision
             transform.position = new Vector3(transform.position.x, hit.point.y , transform.position.z);
-            GetComponent<Rigidbody>().velocity = Vector3.ProjectOnPlane(GetComponent<Rigidbody>().velocity, hit.normal);
-            //if(Vector3.Angle(transform.up, hit.normal) < MaxSlope)
-            _normal = hit.normal;
-            _grounded = true;
+            
+            // bounce if charged
+            if (_bounceReady)
+            {
+                Bounce();
+            }
+            else
+            {
+                // stop the player from moving into the object collided with
+                GetComponent<Rigidbody>().velocity = Vector3.ProjectOnPlane(GetComponent<Rigidbody>().velocity, hit.normal);
+                
+                // set status
+                _normal = hit.normal;
+                _sliding = Vector3.Angle(transform.up, _normal) > MaxSlope;
+                _grounded = true;
+            }
+
+        }
+        else
+        {
+            _sliding = false;
+            _grounded = false;
         }
 
-        //jump
-        if (_grounded && Input.GetButton("Jump") && _jumpcooldown == 0 && !_jumpHeld)
+        // Charge Bounce
+        if (!_grounded && !_sliding && !_jumpLock)
         {
-            GetComponent<Rigidbody>().velocity = GetComponent<Rigidbody>().velocity + transform.up * JumpForce;
-            _grounded = false;
-            _jumpcooldown = 5;
-            _jumpHeld = true;
-            GetComponent<AudioSource>().PlayOneShot(JumpSound);
+            if (Input.GetButton("Jump"))
+            {
+                _bounceCharge += Time.deltaTime;
+                
+                if (_bounceCharge >= BounceChargeTime)
+                {
+                    _bounceCharge = BounceChargeTime;
+                    _bounceReady = true;
+                }
+            }
+            else
+            {
+                _bounceCharge = Mathf.Max(0f, _bounceCharge - Time.deltaTime);
+
+                if (_bounceCharge <= 0)
+                {
+                    _bounceCharge = 0;
+                    _bounceReady = false;
+                }
+            }
         }
+        else
+        {
+            _bounceCharge = 0f;
+            _bounceReady = false;
+        }
+        
+        BounceMeter.localScale = new Vector2(_bounceCharge / BounceChargeTime, 1);
+        BounceReady.enabled = _bounceReady;
 
         // accelerate the player according to input
 
@@ -99,15 +176,11 @@ public class FPSWalkMK3 : MonoBehaviour
         Vector3 moveVector = new Vector3();
         moveVector = moveVector + _rotator.forward * Input.GetAxis("Vertical");
         moveVector = moveVector + _rotator.right * Input.GetAxis("Horizontal");
-        bool sliding = false;
+        
 
-        if (Vector3.Angle(transform.up, _normal) > MaxSlope)
-        {
-            sliding = true;
-        }
+        //Debug.Log("grounded: " + _grounded + ", sliding: " + sliding);
 
-
-        if (_grounded && !sliding)
+        if (_grounded && !_sliding)
         {
             //project the direction to move in onto the surface the player is standing on
             Vector3 targetVelocity = moveVector;
@@ -120,17 +193,22 @@ public class FPSWalkMK3 : MonoBehaviour
         }
         else
         {
+            // calculate air strafe force
             GetComponent<Rigidbody>().AddForce(Physics.gravity, ForceMode.Acceleration);
             Vector3 horizontalVelocity = Vector3.ProjectOnPlane(GetComponent<Rigidbody>().velocity, transform.up).normalized;
-            Vector3 vc = moveVector.normalized * AirStrafeForce;
-
+            Vector3 vc = Vector3.ClampMagnitude(moveVector.normalized * AirStrafeForce, Vector3.Project(GetComponent<Rigidbody>().velocity, moveVector).magnitude);
+            
             //give the player a little boost if they're stationary
-            GetComponent<Rigidbody>().AddForce(Vector3.ClampMagnitude(vc, horizontalVelocity.magnitude - MaxAirSpeed), ForceMode.VelocityChange);
-
+            GetComponent<Rigidbody>().AddForce(Vector3.ClampMagnitude(vc, horizontalVelocity.magnitude - MaxAirSpeed), ForceMode.VelocityChange);            
+            
             // apply air strafe force only if the force is not being applied forwards
             if (Vector3.Dot(horizontalVelocity, moveVector) < 0)
             {
                 GetComponent<Rigidbody>().AddForce(vc, ForceMode.VelocityChange);
+            }
+            else
+            {
+                //GetComponent<Rigidbody>().AddForce(vc * (1 - Vector3.Dot(horizontalVelocity, moveVector)), ForceMode.VelocityChange);
             }
         }
 
@@ -145,18 +223,14 @@ public class FPSWalkMK3 : MonoBehaviour
     {
         if(!LockLook)
         {
-            //jump
-            if (_grounded && Input.GetButtonDown("Jump") && _jumpcooldown == 0 && !_jumpHeld)
+            if (_grounded && !_sliding && !_jumpLock && Input.GetButtonDown("Jump"))
             {
-                GetComponent<Rigidbody>().velocity = GetComponent<Rigidbody>().velocity + transform.up * JumpForce;
-                _grounded = false;
-                _jumpcooldown = 5;
-                _jumpHeld = true;
-                GetComponent<AudioSource>().PlayOneShot(JumpSound);
+                Jump();
             }
+            
             if (Input.GetButtonUp("Jump"))
             {
-                _jumpHeld = false;
+                _jumpLock = false;
             }
 
             // rotate the camera
