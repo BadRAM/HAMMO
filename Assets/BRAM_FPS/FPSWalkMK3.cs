@@ -53,7 +53,7 @@ public class FPSWalkMK3 : MonoBehaviour
     private bool _jumpLock;
 
     // Status
-    private int _jumpcooldown; //only necessary for preventing boxcast from stopping jump
+    private int _jumpCoolDown; //only necessary for preventing boxcast from stopping jump
     private float _bounceCharge;
     private bool _bounceReady;
     private Vector3 _normal;
@@ -67,18 +67,18 @@ public class FPSWalkMK3 : MonoBehaviour
     {
         GetComponent<Rigidbody>().velocity = GetComponent<Rigidbody>().velocity + transform.up * JumpForce;
         _grounded = false;
-        _jumpcooldown = 3;
+        _jumpCoolDown = 3;
         _jumpLock = true;
         GetComponent<AudioSource>().PlayOneShot(JumpSound);
     }
 
     private void Bounce()
     {
-        Vector3 v = GetComponent<Rigidbody>().velocity;
-        GetComponent<Rigidbody>().AddForce(_rotator.transform.up * (v.magnitude * BounceEffectiveness * (_bounceCharge / BounceChargeTime) + v.magnitude), ForceMode.VelocityChange);
+        float v = Vector3.Project(GetComponent<Rigidbody>().velocity, _rotator.up).magnitude;
+        GetComponent<Rigidbody>().AddForce(_rotator.up * (v * BounceEffectiveness * (_bounceCharge / BounceChargeTime) + v), ForceMode.VelocityChange);
         Debug.Log("bounced with strength: " + _bounceCharge / BounceChargeTime);
         _grounded = false;
-        _jumpcooldown = 3;
+        _jumpCoolDown = 3;
         _jumpLock = true;
         GetComponent<AudioSource>().PlayOneShot(JumpSound);
         BounceParticles.Play();
@@ -103,13 +103,22 @@ public class FPSWalkMK3 : MonoBehaviour
     // FixedUpdate is called once per physics tick
     void FixedUpdate()
     {
-        //check for a collision with ground, and stop the player if one is detected
+/*        // If the ground was flat last frame, check a little further down than usual.
+        // BAD CODE, FIX THIS FOR REAL
+        float isFlat = 0f;
+        if (_normal == Vector3.up && _grounded)
+        {
+            Debug.Log("isflatting");
+            isFlat = 0f;
+        }*/
         
+        //check for a collision with ground, and stop the player if one is detected
         RaycastHit hit;
         _normal = Vector3.up;
-        if (_jumpcooldown == 0 && 
+        
+        if (_jumpCoolDown == 0 && 
             Physics.BoxCast(transform.position + transform.up * (Height - (Width / 2)), _boxCastHalfExtents, -transform.up, out hit, transform.rotation, Height - Width, _layerMask)
-            && !hit.collider.isTrigger && Vector3.Dot(GetComponent<Rigidbody>().velocity, hit.normal) < 0)
+            && !hit.collider.isTrigger && Vector3.Dot(GetComponent<Rigidbody>().velocity, hit.normal) <= 0)
         {
             // move to collision
             transform.position = new Vector3(transform.position.x, hit.point.y , transform.position.z);
@@ -178,7 +187,7 @@ public class FPSWalkMK3 : MonoBehaviour
         moveVector = moveVector + _rotator.right * Input.GetAxis("Horizontal");
         
 
-        //Debug.Log("grounded: " + _grounded + ", sliding: " + sliding);
+        Debug.Log("grounded: " + _grounded + ", sliding: " + _sliding + ", normal: " + _normal);
 
         if (_grounded && !_sliding)
         {
@@ -213,7 +222,7 @@ public class FPSWalkMK3 : MonoBehaviour
         }
 
         //increment the jump cooldown
-        _jumpcooldown = Mathf.Max(0, _jumpcooldown - 1);
+        _jumpCoolDown = Mathf.Max(0, _jumpCoolDown - 1);
 
         
     }
