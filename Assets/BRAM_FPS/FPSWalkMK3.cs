@@ -10,20 +10,26 @@ public class FPSWalkMK3 : MonoBehaviour
     // this is a First Person movement controller that uses a box collider and a boxcast to interact with map geometry.
     
     //TODO:
-    //dont stop upwards momentum on footbox collisions, and remove _jumpCooldown
     //smooth out vertical camera movement on step up
-    // B O U N C E
     //fix the little boost for stationary players in air.
+    //add a small boost for air strafing
+    //prevent jumping when skidding
+    //fix bounce not resetting
+    //make surfing retain velocity better
+    //fix falling into the floor near tall steps
+    
 
     [Header("Size")]
     public float Height = 2;
     public float Width = 1;
     public float StepUpDistance = 0.5f;
     public float Weight;
+    private float _cameraHeight;
 
 
     [Header("Movement Characteristics")]
     public float LookSensitivity = 1f;
+    public float CameraStepUpSpeed = 0.25f;
     public float WalkSpeed = 5f;
     public float MaxAirSpeed = 1f; // the maximum speed that the player can reach in the air by conventional means. should be ~10% of walk speed.
     public float Acceleration = 1.5f;
@@ -84,6 +90,12 @@ public class FPSWalkMK3 : MonoBehaviour
         BounceParticles.Play();
         GetComponent<Player>().IncrementHammo(-1);
     }
+
+    public void Restart()
+    {
+        _bounceCharge = 0;
+        _bounceReady = false;
+    }
     
     // Use this for initialization
     void Start()
@@ -95,6 +107,7 @@ public class FPSWalkMK3 : MonoBehaviour
         // set the rotator and camera
         _rotator = transform.GetChild(0);
         _playerCamera = _rotator.GetChild(0);
+        _cameraHeight = _playerCamera.localPosition.y;
 
         // set the boxcast parameters
         _boxCastHalfExtents = new Vector3(Width / 2, Width / 2, Width / 2);
@@ -187,7 +200,7 @@ public class FPSWalkMK3 : MonoBehaviour
         moveVector = moveVector + _rotator.right * Input.GetAxis("Horizontal");
         
 
-        Debug.Log("grounded: " + _grounded + ", sliding: " + _sliding + ", normal: " + _normal);
+        //Debug.Log("grounded: " + _grounded + ", sliding: " + _sliding + ", normal: " + _normal);
 
         if (_grounded && !_sliding)
         {
@@ -202,13 +215,22 @@ public class FPSWalkMK3 : MonoBehaviour
         }
         else
         {
-            // calculate air strafe force
+            // apply gravity
             GetComponent<Rigidbody>().AddForce(Physics.gravity, ForceMode.Acceleration);
+
+            // boost control if surfing
+            float boost = 1f;
+            if (_sliding)
+            { 
+                boost = 2f;
+            }
+
+            // calculate air strafe force
             Vector3 horizontalVelocity = Vector3.ProjectOnPlane(GetComponent<Rigidbody>().velocity, transform.up).normalized;
-            Vector3 vc = Vector3.ClampMagnitude(moveVector.normalized * AirStrafeForce, Vector3.Project(GetComponent<Rigidbody>().velocity, moveVector).magnitude);
+            Vector3 vc = Vector3.ClampMagnitude(moveVector.normalized * AirStrafeForce * boost, Vector3.Project(GetComponent<Rigidbody>().velocity, moveVector).magnitude);
             
             //give the player a little boost if they're stationary
-            GetComponent<Rigidbody>().AddForce(Vector3.ClampMagnitude(vc, horizontalVelocity.magnitude - MaxAirSpeed), ForceMode.VelocityChange);            
+            GetComponent<Rigidbody>().AddForce(Vector3.ClampMagnitude(moveVector.normalized, horizontalVelocity.magnitude - MaxAirSpeed), ForceMode.VelocityChange);            
             
             // apply air strafe force only if the force is not being applied forwards
             if (Vector3.Dot(horizontalVelocity, moveVector) < 0)
@@ -219,6 +241,7 @@ public class FPSWalkMK3 : MonoBehaviour
             {
                 //GetComponent<Rigidbody>().AddForce(vc * (1 - Vector3.Dot(horizontalVelocity, moveVector)), ForceMode.VelocityChange);
             }
+            
         }
 
         //increment the jump cooldown

@@ -21,15 +21,23 @@ public class Player : MonoBehaviour
     public TextMeshProUGUI RemainingEnemies;
     private int _maxEnemies;
 
+    public Canvas RestartPrompt;
+    
+    public Canvas StartScreen;
+    public TextMeshProUGUI StartScreenRanks;
+    
     public Canvas HUD;
+    
     public Canvas PauseMenu;
 
     public Canvas WinScreen;
     public TextMeshProUGUI WinTime;
+    public TextMeshProUGUI WinRank;
     public TextMeshProUGUI HighScoreTime;
+    public TextMeshProUGUI HighScoreRank;
+    public TextMeshProUGUI NewRecord;
 
     public Canvas LoseScreen;
-    public Canvas StartScreen;
 
     private GameObject[] _enemies;
 
@@ -39,7 +47,11 @@ public class Player : MonoBehaviour
         WinScreen.enabled = true;
         WinTime.text = FloatToTime(_time);
         ScoreTracker.AddScore(SceneManager.GetActiveScene().buildIndex, _time);
-        HighScoreTime.text = FloatToTime(ScoreTracker.GetScore(SceneManager.GetActiveScene().buildIndex));
+        float topscore = ScoreTracker.GetScore(SceneManager.GetActiveScene().buildIndex);
+        HighScoreTime.text = FloatToTime(topscore);
+        NewRecord.enabled = _time == topscore;
+        FindObjectOfType<LevelRanks>().SetRankIndicator(WinRank, _time);
+        FindObjectOfType<LevelRanks>().SetRankIndicator(HighScoreRank, topscore);
         Time.timeScale = 0f;
     }
 
@@ -89,6 +101,9 @@ public class Player : MonoBehaviour
     {
         StartScreen.enabled = true;
         Time.timeScale = 0;
+        
+        // show the 
+        StartScreenRanks.text = FindObjectOfType<LevelRanks>().GetRankPreview(ScoreTracker.GetScore(SceneManager.GetActiveScene().buildIndex));
 
         HUD.enabled = true;
 
@@ -127,18 +142,15 @@ public class Player : MonoBehaviour
         _enemies = GameObject.FindGameObjectsWithTag("Enemy");
         _maxEnemies = _enemies.Length;
         _spawnPoint = transform.position;
-
+        
         Restart();
     }
 
     void FixedUpdate()
     {
-        _time += Time.fixedDeltaTime;
+        _time += Time.deltaTime;
 
-        if (transform.position.y < -50)
-        {
-            IncrementHammo(-100);
-        }
+        RestartPrompt.enabled = transform.position.y < -50;
     }
 
     // Update is called once per frame
