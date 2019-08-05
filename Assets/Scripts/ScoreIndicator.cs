@@ -8,6 +8,8 @@ public class ScoreIndicator : MonoBehaviour
 {
     public int levelID;
     public TextMeshProUGUI textMesh;
+    public LevelRanks LevelRanks;
+    public TextMeshProUGUI RankText;
 
     public void Start()
     {
@@ -16,7 +18,17 @@ public class ScoreIndicator : MonoBehaviour
 
     public void UpdateText()
     {
-        textMesh.text = FloatToTime(ScoreTracker.GetScore(levelID));
+        float score = ScoreTracker.GetScore(levelID);
+        if (score == 0f)
+        {
+            textMesh.text = "Incomplete";
+            RankText.text = "";
+        }
+        else
+        {
+            textMesh.text = FloatToTime(ScoreTracker.GetScore(levelID));
+            LevelRanks.SetRankIndicator(RankText, score);
+        }
     }
 
     string FloatToTime(float time)
