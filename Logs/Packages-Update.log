@@ -58,3 +58,11 @@ Update Mode: updateDependencies
 
 The following packages were updated:
   com.unity.probuilder from version 4.0.4 to 4.1.0
+
+=== Mon Aug  5 16:59:45 2019
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were updated:
+  com.unity.test-framework from version 1.0.16 to 1.0.17
