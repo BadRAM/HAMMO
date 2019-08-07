@@ -7,6 +7,7 @@ public class Speedo : MonoBehaviour
 {
     public TextMeshProUGUI Text;
     public Rigidbody Target;
+    public bool IgnoreVertical;
 
     // Start is called before the first frame update
     void Start()
@@ -17,6 +18,13 @@ public class Speedo : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Text.text = Mathf.Round(Target.velocity.magnitude) + "";
+        if (IgnoreVertical)
+        {
+            Text.text = Mathf.Round(Vector3.ProjectOnPlane(Target.velocity, Vector3.up).magnitude) + "";
+        }
+        else
+        {
+            Text.text = Mathf.Round(Target.velocity.magnitude) + "";
+        }
     }
 }

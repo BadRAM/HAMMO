@@ -11,11 +11,9 @@ public class FPSWalkMK3 : MonoBehaviour
     
     //TODO:
     //smooth out vertical camera movement on step up
-    //fix the little boost for stationary players in air.
-    //add a small boost for air strafing
     //prevent jumping when skidding
     //fix bounce not resetting
-    //make surfing retain velocity better
+    //stop the player from climbing slopes
     //fix falling into the floor near tall steps
     
 
@@ -64,6 +62,7 @@ public class FPSWalkMK3 : MonoBehaviour
     private bool _bounceReady;
     private Vector3 _normal;
     private bool _sliding;
+    private bool _skidding;
 
     // Boxcast parameters
     private Vector3 _boxCastHalfExtents;
@@ -91,6 +90,14 @@ public class FPSWalkMK3 : MonoBehaviour
         GetComponent<Player>().IncrementHammo(-1);
     }
 
+    private void TerrainCollide(Vector3 normal)
+    {
+        if (Vector3.Dot(GetComponent<Rigidbody>().velocity, normal) <= 0)
+        {
+            GetComponent<Rigidbody>().velocity = Vector3.ProjectOnPlane(GetComponent<Rigidbody>().velocity, normal);
+        }
+    }
+
     public void Restart()
     {
         _bounceCharge = 0;
@@ -116,15 +123,9 @@ public class FPSWalkMK3 : MonoBehaviour
     // FixedUpdate is called once per physics tick
     void FixedUpdate()
     {
-/*        // If the ground was flat last frame, check a little further down than usual.
-        // BAD CODE, FIX THIS FOR REAL
-        float isFlat = 0f;
-        if (_normal == Vector3.up && _grounded)
-        {
-            Debug.Log("isflatting");
-            isFlat = 0f;
-        }*/
-        
+        // apply gravity
+        GetComponent<Rigidbody>().AddForce(Physics.gravity, ForceMode.Acceleration);
+
         //check for a collision with ground, and stop the player if one is detected
         RaycastHit hit;
         _normal = Vector3.up;
@@ -144,7 +145,8 @@ public class FPSWalkMK3 : MonoBehaviour
             else
             {
                 // stop the player from moving into the object collided with
-                GetComponent<Rigidbody>().velocity = Vector3.ProjectOnPlane(GetComponent<Rigidbody>().velocity, hit.normal);
+                //GetComponent<Rigidbody>().velocity = Vector3.ProjectOnPlane(GetComponent<Rigidbody>().velocity, hit.normal);
+                TerrainCollide(hit.normal);
                 
                 // set status
                 _normal = hit.normal;
@@ -215,34 +217,49 @@ public class FPSWalkMK3 : MonoBehaviour
         }
         else
         {
-            // apply gravity
-            GetComponent<Rigidbody>().AddForce(Physics.gravity, ForceMode.Acceleration);
-
-            // boost control if surfing
-            float boost = 1f;
-            if (_sliding)
-            { 
-                boost = 2f;
-            }
-
-            // calculate air strafe force
-            Vector3 horizontalVelocity = Vector3.ProjectOnPlane(GetComponent<Rigidbody>().velocity, transform.up).normalized;
-            Vector3 vc = Vector3.ClampMagnitude(moveVector.normalized * AirStrafeForce * boost, Vector3.Project(GetComponent<Rigidbody>().velocity, moveVector).magnitude);
+            // air control
+            // project the velocity onto the movevector
+            Vector3 projVel = Vector3.Project(GetComponent<Rigidbody>().velocity, moveVector);
             
-            //give the player a little boost if they're stationary
-            GetComponent<Rigidbody>().AddForce(Vector3.ClampMagnitude(moveVector.normalized, horizontalVelocity.magnitude - MaxAirSpeed), ForceMode.VelocityChange);            
+            // check if the movevector is moving towards or away from the projected velocity
+            bool isAway = Vector3.Dot(moveVector, projVel) <= 0f;
             
-            // apply air strafe force only if the force is not being applied forwards
-            if (Vector3.Dot(horizontalVelocity, moveVector) < 0)
+            // only apply force if moving away from velocity or velocity is below MaxAirSpeed
+            if (projVel.magnitude < MaxAirSpeed || isAway)
             {
+                // calculate the ideal movement force
+                Vector3 vc = moveVector.normalized * AirStrafeForce;
+                
+                // cap it if it would accelerate beyond MaxAirSpeed directly.
+                if (!isAway)
+                {
+                    vc = Vector3.ClampMagnitude(vc, MaxAirSpeed - projVel.magnitude);
+                }
+                else
+                {
+                    vc = Vector3.ClampMagnitude(vc, MaxAirSpeed + projVel.magnitude);
+                    
+                    // check if the player is strafing into a slope
+                    if (_sliding && Vector3.Dot(vc, Vector3.ProjectOnPlane(_normal, Vector3.up)) < 0)
+                    {
+                        // prevent them from sliding up the slope
+                        vc = Vector3.ClampMagnitude(vc, projVel.magnitude);
+                    }
+                }
+                
+                
+                // Apply the force
                 GetComponent<Rigidbody>().AddForce(vc, ForceMode.VelocityChange);
+                Debug.Log("Airmoved with magnitude: " + vc.magnitude + " against projvel: " + projVel.magnitude);
+                
+                if (_sliding)
+                {
+                    TerrainCollide(_normal);
+                }
             }
-            else
-            {
-                //GetComponent<Rigidbody>().AddForce(vc * (1 - Vector3.Dot(horizontalVelocity, moveVector)), ForceMode.VelocityChange);
-            }
-            
         }
+
+
 
         //increment the jump cooldown
         _jumpCoolDown = Mathf.Max(0, _jumpCoolDown - 1);

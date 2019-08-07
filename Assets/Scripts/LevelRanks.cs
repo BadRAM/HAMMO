@@ -55,7 +55,7 @@ public class LevelRanks : MonoBehaviour
     public string GetRankPreview(float time)
     {
         // only show S rank time if A rank has been achieved
-        if (time < ARank)
+        if (time < ARank && time > 0f)
         {
             return "S: " + FloatToTime(SRank) + "\nA: " + FloatToTime(ARank) + "\nB: " + FloatToTime(BRank) + "\nC: " + FloatToTime(CRank);
         }

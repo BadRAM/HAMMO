@@ -51,7 +51,7 @@ public class FPSWalkMK2 : MonoBehaviour {
 		RaycastHit hit;
 		float shortestFeeler = MaxFeelerLength;
 		Vector3 targetPosition = transform.position;
-		float bestNormal = 90f;
+		//float bestNormal = 90f;
 		_groundNormal = Vector3.zero;
 		_averageNormal = Vector3.zero;
 		
