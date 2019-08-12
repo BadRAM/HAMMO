@@ -16,6 +16,7 @@ public class Enemy : MonoBehaviour
     public Collider StunnedHitBox;
     public bool Alerted;
     public Transform Target;
+    public float StunDuration = 0.5f;
     public float AlertRange = 100;
     public float AttackRange = 10;
     public ParticleSystem ChargeParticles;
@@ -23,6 +24,7 @@ public class Enemy : MonoBehaviour
     private int _layerMask;
     private float _attackTimer = 3;
     private bool _attacking;
+    private float _stunTimer;
     public float ChargeDuration;
     public AudioClip ChargeSound;
     public AudioClip FireSound;
@@ -30,14 +32,17 @@ public class Enemy : MonoBehaviour
     public AudioSource AudioSource;
     public GameObject DeathEffect;
     public GameObject Beam;
+    public Transform CenterOfMass;
 
     // Start is called before the first frame update
     void Start()
     {
+        GetComponent<Rigidbody>().centerOfMass = CenterOfMass.localPosition;
         ChargeParticles.Stop();
         _layerMask = LayerMask.GetMask("Terrain");
         _startPos = transform.position;
         Target = GameObject.Find("Player").transform;
+        Recover();
     }
 
     public void Reset()
@@ -77,15 +82,10 @@ public class Enemy : MonoBehaviour
             Kill();
         }
 
-        if (Stunned && Vector3.Dot(GetComponent<Rigidbody>().velocity, transform.up) <= 0
+        if (Stunned && _stunTimer == 0 && Vector3.Dot(GetComponent<Rigidbody>().velocity, transform.up) <= 0
         && Physics.Raycast(transform.position + transform.up, -transform.up, 1.01f, _layerMask))
         {
-            Stunned = false;
-            GetComponent<NavMeshAgent>().enabled = true;
-            GetComponent<Rigidbody>().isKinematic = true;
-            StandingHitBox.enabled = true;
-            StunnedHitBox.enabled = false;
-            StunParticles.Stop();
+            Recover();
         }
 
         if (!Alerted && Vector3.Distance(Target.position, transform.position) < AlertRange
@@ -130,6 +130,7 @@ public class Enemy : MonoBehaviour
         }
 
         _attackTimer = Mathf.Max(0, _attackTimer - Time.deltaTime);
+        _stunTimer = Mathf.Max(0, _stunTimer - Time.deltaTime);
     }
 
     /*
@@ -166,5 +167,16 @@ public class Enemy : MonoBehaviour
         StunParticles.Play();
         _attacking = false;
         _attackTimer = 0;
+        _stunTimer = StunDuration;
+    }
+
+    void Recover()
+    {
+        Stunned = false;
+        GetComponent<NavMeshAgent>().enabled = true;
+        GetComponent<Rigidbody>().isKinematic = true;
+        StandingHitBox.enabled = true;
+        StunnedHitBox.enabled = false;
+        StunParticles.Stop();
     }
 }

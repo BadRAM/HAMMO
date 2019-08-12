@@ -17,12 +17,13 @@ public class PlayerWeapon : MonoBehaviour
     public GameObject BeamCrosshair;
     public AudioClip RocketLaunchSound;
     public AudioClip BeamFireSound;
-
+    private LayerMask _layerMask;
+    
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        _layerMask = LayerMask.GetMask("Enemies", "Terrain");
     }
 
     public void Restart()
@@ -58,7 +59,7 @@ public class PlayerWeapon : MonoBehaviour
                 beam.GetComponent<Beam>().startPoint = RocketStartPoint.position;
 
                 RaycastHit hit;
-                if(Physics.Raycast(BeamStartPoint.position, BeamStartPoint.forward, out hit))
+                if(Physics.Raycast(BeamStartPoint.position, BeamStartPoint.forward, out hit, _layerMask))
                 {
                     beam.GetComponent<Beam>().endPoint = hit.point;
 

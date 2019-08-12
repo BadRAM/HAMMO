@@ -9,10 +9,11 @@ public class Rocket : MonoBehaviour
     public float BlastRadius = 5;
     public float BlastStrength = 500;
     public float UpwardsAdjustment;
-    //public GameObject Explosion;
     public ParticleSystem ExplosionParticles;
+    public ParticleSystem TrailParticles;
     private float _explosionDuration = -1;
     public AudioClip ExplosionSound;
+    public GameObject DisableOnHit;
 
     public Player Player;
     //public float StunDuration = 3;
@@ -69,10 +70,10 @@ public class Rocket : MonoBehaviour
             }
         }
 
+        DisableOnHit.SetActive(false);
+        TrailParticles.Stop();
         _explosionDuration = 3;
         ExplosionParticles.Play();
         GetComponent<AudioSource>().PlayOneShot(ExplosionSound);
-        GetComponentInChildren<Collider>().enabled = false;
-        GetComponentInChildren<MeshRenderer>().enabled = false;
     }
 }

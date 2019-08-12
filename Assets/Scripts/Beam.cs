@@ -7,6 +7,7 @@ public class Beam : MonoBehaviour
 {
     public Vector3 startPoint;
     public Vector3 endPoint;
+    public Transform HitSoundEmitter;
     [SerializeField] private float duration = 1;
     private float elapsedTime;
 
@@ -15,6 +16,8 @@ public class Beam : MonoBehaviour
         GetComponent<LineRenderer>().positionCount = 2;
         GetComponent<LineRenderer>().SetPosition(0, startPoint);
         GetComponent<LineRenderer>().SetPosition(1, endPoint);
+        HitSoundEmitter.position = endPoint;
+        HitSoundEmitter.GetComponent<AudioSource>().Play();
     }
 
     private void Update()

@@ -117,6 +117,8 @@ public class Player : MonoBehaviour
         LoseScreen.enabled = false;
 
         GetComponent<PlayerWeapon>().Restart();
+        
+        GetComponent<FPSWalkMK3>().Restart();
 
         foreach(GameObject i in _enemies)
         {

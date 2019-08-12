@@ -10,10 +10,6 @@ public class FPSWalkMK3 : MonoBehaviour
     // this is a First Person movement controller that uses a box collider and a boxcast to interact with map geometry.
     
     //TODO:
-    //smooth out vertical camera movement on step up
-    //prevent jumping when skidding
-    //fix bounce not resetting
-    //stop the player from climbing slopes
     //fix falling into the floor near tall steps
     
 
@@ -27,7 +23,7 @@ public class FPSWalkMK3 : MonoBehaviour
 
     [Header("Movement Characteristics")]
     public float LookSensitivity = 1f;
-    public float CameraStepUpSpeed = 0.25f;
+    public float CameraStepUpSpeed = 5f;
     public float WalkSpeed = 5f;
     public float MaxAirSpeed = 1f; // the maximum speed that the player can reach in the air by conventional means. should be ~10% of walk speed.
     public float Acceleration = 1.5f;
@@ -44,6 +40,8 @@ public class FPSWalkMK3 : MonoBehaviour
     public ParticleSystem BounceParticles;
     public RectTransform BounceMeter;
     public TextMeshProUGUI BounceReady;
+    public TextMeshProUGUI GroundedIndicator;
+    public TextMeshProUGUI SlidingIndicator;
 
     // --- Private Variables ---
 
@@ -55,10 +53,11 @@ public class FPSWalkMK3 : MonoBehaviour
     private float _cameraX;
     private float _cameraY;
     private bool _jumpLock;
+    private bool _airJumpLock;
 
     // Status
     private int _jumpCoolDown; //only necessary for preventing boxcast from stopping jump
-    private float _bounceCharge;
+    [SerializeField] private float _bounceCharge;
     private bool _bounceReady;
     private Vector3 _normal;
     private bool _sliding;
@@ -79,15 +78,28 @@ public class FPSWalkMK3 : MonoBehaviour
 
     private void Bounce()
     {
+        // calculate vertical velocity
         float v = Vector3.Project(GetComponent<Rigidbody>().velocity, _rotator.up).magnitude;
-        GetComponent<Rigidbody>().AddForce(_rotator.up * (v * BounceEffectiveness * (_bounceCharge / BounceChargeTime) + v), ForceMode.VelocityChange);
-        Debug.Log("bounced with strength: " + _bounceCharge / BounceChargeTime);
+        
+        // cancel vertical velocity
+        Rigidbody r = GetComponent<Rigidbody>();
+        r.velocity = Vector3.ProjectOnPlane(r.velocity, Vector3.up);
+        
+        // calculate and apply bounce force
+        float f = Mathf.Max(JumpForce, v * BounceEffectiveness) * (_bounceCharge / BounceChargeTime);
+        GetComponent<Rigidbody>().AddForce(_rotator.up * f, ForceMode.VelocityChange);
+        
+        // manage state
         _grounded = false;
         _jumpCoolDown = 3;
         _jumpLock = true;
-        GetComponent<AudioSource>().PlayOneShot(JumpSound);
-        BounceParticles.Play();
         GetComponent<Player>().IncrementHammo(-1);
+
+        // activate effects
+        GetComponent<AudioSource>().PlayOneShot(JumpSound);
+        ParticleSystem.MainModule psmain = BounceParticles.main;
+        psmain.startSpeed = v - 5;
+        BounceParticles.Play();
     }
 
     private void TerrainCollide(Vector3 normal)
@@ -102,6 +114,9 @@ public class FPSWalkMK3 : MonoBehaviour
     {
         _bounceCharge = 0;
         _bounceReady = false;
+        
+        BounceMeter.localScale = new Vector2(_bounceCharge / BounceChargeTime, 1);
+        BounceReady.enabled = _bounceReady;
     }
     
     // Use this for initialization
@@ -130,10 +145,17 @@ public class FPSWalkMK3 : MonoBehaviour
         RaycastHit hit;
         _normal = Vector3.up;
         
-        if (_jumpCoolDown == 0 && 
+        if (//_jumpCoolDown == 0 && 
             Physics.BoxCast(transform.position + transform.up * (Height - (Width / 2)), _boxCastHalfExtents, -transform.up, out hit, transform.rotation, Height - Width, _layerMask)
             && !hit.collider.isTrigger && Vector3.Dot(GetComponent<Rigidbody>().velocity, hit.normal) <= 0)
         {
+            if (hit.point.y - transform.position.y > 0.1f)
+            {
+                var pos = _playerCamera.position;
+                pos = new Vector3(pos.x, pos.y - (hit.point.y - _rotator.position.y), pos.z);
+                _playerCamera.position = pos;
+            }
+            
             // move to collision
             transform.position = new Vector3(transform.position.x, hit.point.y , transform.position.z);
             
@@ -166,6 +188,8 @@ public class FPSWalkMK3 : MonoBehaviour
         {
             if (Input.GetButton("Jump"))
             {
+                _airJumpLock = true;
+                
                 _bounceCharge += Time.deltaTime;
                 
                 if (_bounceCharge >= BounceChargeTime)
@@ -206,6 +230,9 @@ public class FPSWalkMK3 : MonoBehaviour
 
         if (_grounded && !_sliding)
         {
+            // set skidding to true if we're moving faster than walkspeed
+            _skidding = GetComponent<Rigidbody>().velocity.magnitude > WalkSpeed;
+
             //project the direction to move in onto the surface the player is standing on
             Vector3 targetVelocity = moveVector;
             targetVelocity = Vector3.ProjectOnPlane(targetVelocity, _normal).normalized; //risky
@@ -250,7 +277,6 @@ public class FPSWalkMK3 : MonoBehaviour
                 
                 // Apply the force
                 GetComponent<Rigidbody>().AddForce(vc, ForceMode.VelocityChange);
-                Debug.Log("Airmoved with magnitude: " + vc.magnitude + " against projvel: " + projVel.magnitude);
                 
                 if (_sliding)
                 {
@@ -270,9 +296,14 @@ public class FPSWalkMK3 : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        GroundedIndicator.enabled = _grounded;
+        SlidingIndicator.enabled = _sliding;
+        
         if(!LockLook)
         {
-            if (_grounded && !_sliding && !_jumpLock && Input.GetButtonDown("Jump"))
+            _playerCamera.position = new Vector3(_playerCamera.position.x, Mathf.Min(_rotator.position.y + _cameraHeight, _playerCamera.position.y + Time.deltaTime * CameraStepUpSpeed), _playerCamera.position.z);
+            
+            if (_grounded && !_sliding && !_skidding && !_jumpLock && !_airJumpLock && Input.GetButton("Jump"))
             {
                 Jump();
             }
@@ -280,6 +311,7 @@ public class FPSWalkMK3 : MonoBehaviour
             if (Input.GetButtonUp("Jump"))
             {
                 _jumpLock = false;
+                _airJumpLock = false;
             }
 
             // rotate the camera

@@ -57,10 +57,12 @@ public static class ScoreTracker
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(Application.dataPath + "/times.sav", FileMode.Open);
             IDictionary<int, float> scores = (IDictionary<int, float>)bf.Deserialize(file);
+            /*
             foreach (var i in scores)
             {
                 Debug.Log(i);
             }
+            */
             file.Close();
 
             _scores = scores;
