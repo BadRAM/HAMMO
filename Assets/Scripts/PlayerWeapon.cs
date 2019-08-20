@@ -23,7 +23,7 @@ public class PlayerWeapon : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _layerMask = LayerMask.GetMask("Enemies", "Terrain");
+        _layerMask = LayerMask.GetMask("EnemyCollision", "Terrain");
     }
 
     public void Restart()
@@ -59,7 +59,7 @@ public class PlayerWeapon : MonoBehaviour
                 beam.GetComponent<Beam>().startPoint = RocketStartPoint.position;
 
                 RaycastHit hit;
-                if(Physics.Raycast(BeamStartPoint.position, BeamStartPoint.forward, out hit, _layerMask))
+                if(Physics.Raycast(BeamStartPoint.position, BeamStartPoint.forward, out hit, Mathf.Infinity, _layerMask))
                 {
                     beam.GetComponent<Beam>().endPoint = hit.point;
 

@@ -140,7 +140,7 @@ GameObject:
   - component: {fileID: 2095804111624340139}
   m_Layer: 0
   m_Name: RayTrail
-  m_TagString: Untagged
+  m_TagString: Effect
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -272,4 +272,5 @@ MonoBehaviour:
   startPoint: {x: 0, y: 0, z: 0}
   endPoint: {x: 0, y: 0, z: 0}
   HitSoundEmitter: {fileID: 124162584140476230}
-  duration: 0.1
+  duration: 2
+  lineDuration: 0.1

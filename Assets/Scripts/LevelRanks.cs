@@ -15,14 +15,6 @@ public class LevelRanks : MonoBehaviour
     public Color CColor;
     public Color DColor;
 
-    string FloatToTime(float time)
-    {
-        int minutes = (int)time / 60;
-        int seconds = (int)time - 60 * minutes;
-        int milliseconds = (int)(1000 * (time - minutes * 60 - seconds));
-        return string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
-    }
-
     public void SetRankIndicator(TextMeshProUGUI target, float time)
     {
         if (time < SRank)
@@ -57,11 +49,11 @@ public class LevelRanks : MonoBehaviour
         // only show S rank time if A rank has been achieved
         if (time < ARank && time > 0f)
         {
-            return "S: " + FloatToTime(SRank) + "\nA: " + FloatToTime(ARank) + "\nB: " + FloatToTime(BRank) + "\nC: " + FloatToTime(CRank);
+            return "S: " + FloatToTime.Convert(SRank) + "\nA: " + FloatToTime.Convert(ARank) + "\nB: " + FloatToTime.Convert(BRank) + "\nC: " + FloatToTime.Convert(CRank);
         }
         else
         {
-            return "A: " + FloatToTime(ARank) + "\nB: " + FloatToTime(BRank) + "\nC: " + FloatToTime(CRank);
+            return "A: " + FloatToTime.Convert(ARank) + "\nB: " + FloatToTime.Convert(BRank) + "\nC: " + FloatToTime.Convert(CRank);
         }
     }
 }

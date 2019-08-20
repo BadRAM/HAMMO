@@ -42,6 +42,8 @@ public class FPSWalkMK3 : MonoBehaviour
     public TextMeshProUGUI BounceReady;
     public TextMeshProUGUI GroundedIndicator;
     public TextMeshProUGUI SlidingIndicator;
+    public RectTransform AirStrafeIndicator;
+    public Gradient AirStrafeIndicatorColor;
 
     // --- Private Variables ---
 
@@ -56,12 +58,13 @@ public class FPSWalkMK3 : MonoBehaviour
     private bool _airJumpLock;
 
     // Status
-    private int _jumpCoolDown; //only necessary for preventing boxcast from stopping jump
+    private int _jumpCounter; //useless, remove
     [SerializeField] private float _bounceCharge;
     private bool _bounceReady;
     private Vector3 _normal;
     private bool _sliding;
     private bool _skidding;
+    private float _airStrafeIndicatorForce;
 
     // Boxcast parameters
     private Vector3 _boxCastHalfExtents;
@@ -69,9 +72,12 @@ public class FPSWalkMK3 : MonoBehaviour
 
     private void Jump()
     {
-        GetComponent<Rigidbody>().velocity = GetComponent<Rigidbody>().velocity + transform.up * JumpForce;
+        float v = Vector3.Project(GetComponent<Rigidbody>().velocity, _rotator.up).magnitude;
+        
+        GetComponent<Rigidbody>().AddForce(_rotator.up * JumpForce, ForceMode.VelocityChange);
+
         _grounded = false;
-        _jumpCoolDown = 3;
+        _jumpCounter = 0;
         _jumpLock = true;
         GetComponent<AudioSource>().PlayOneShot(JumpSound);
     }
@@ -91,8 +97,13 @@ public class FPSWalkMK3 : MonoBehaviour
         
         // manage state
         _grounded = false;
-        _jumpCoolDown = 3;
-        _jumpLock = true;
+        Debug.Log("Bounced after " + _jumpCounter + " ticks.");
+        _jumpCounter = 0;
+
+        if (Input.GetButton("Jump"))
+        {
+            _jumpLock = true;
+        }
         GetComponent<Player>().IncrementHammo(-1);
 
         // activate effects
@@ -100,6 +111,7 @@ public class FPSWalkMK3 : MonoBehaviour
         ParticleSystem.MainModule psmain = BounceParticles.main;
         psmain.startSpeed = v - 5;
         BounceParticles.Play();
+        
     }
 
     private void TerrainCollide(Vector3 normal)
@@ -109,11 +121,83 @@ public class FPSWalkMK3 : MonoBehaviour
             GetComponent<Rigidbody>().velocity = Vector3.ProjectOnPlane(GetComponent<Rigidbody>().velocity, normal);
         }
     }
+    
+    private void GroundMovement(Vector3 moveVector)
+    {
+        if (_jumpCounter < 0)
+        {
+            Debug.Log("Landed after " + _jumpCounter + " ticks.");
+            _jumpCounter = 0;
+        }
+
+        // set skidding to true if we're moving faster than walkspeed
+        _skidding = GetComponent<Rigidbody>().velocity.magnitude > WalkSpeed;
+
+        //project the direction to move in onto the surface the player is standing on
+        Vector3 targetVelocity = moveVector;
+        targetVelocity = Vector3.ProjectOnPlane(targetVelocity, _normal).normalized; //risky
+        targetVelocity *= WalkSpeed;
+
+        // Apply a force that attempts to reach our target velocity
+        Vector3 vc = Vector3.ClampMagnitude(targetVelocity - GetComponent<Rigidbody>().velocity, Acceleration);
+        GetComponent<Rigidbody>().AddForce(vc, ForceMode.VelocityChange);
+    }
+
+    
+    void AirMovement(Vector3 vector3)
+    {
+        //increment the jump cooldown
+        _jumpCounter -= 1;
+
+        // air control
+        // project the velocity onto the movevector
+        Vector3 projVel = Vector3.Project(GetComponent<Rigidbody>().velocity, vector3);
+
+        // check if the movevector is moving towards or away from the projected velocity
+        bool isAway = Vector3.Dot(vector3, projVel) <= 0f;
+
+        // only apply force if moving away from velocity or velocity is below MaxAirSpeed
+        if (projVel.magnitude < MaxAirSpeed || isAway)
+        {
+            // calculate the ideal movement force
+            Vector3 vc = vector3.normalized * AirStrafeForce;
+
+            // cap it if it would accelerate beyond MaxAirSpeed directly.
+            if (!isAway)
+            {
+                vc = Vector3.ClampMagnitude(vc, MaxAirSpeed - projVel.magnitude);
+            }
+            else
+            {
+                vc = Vector3.ClampMagnitude(vc, MaxAirSpeed + projVel.magnitude);
+
+                // check if the player is strafing into a slope
+                if (_sliding && Vector3.Dot(vc, Vector3.ProjectOnPlane(_normal, Vector3.up)) < 0)
+                {
+                    // prevent them from sliding up the slope
+                    vc = Vector3.ClampMagnitude(vc, projVel.magnitude);
+                }
+            }
+
+            // Apply the force
+            GetComponent<Rigidbody>().AddForce(vc, ForceMode.VelocityChange);
+
+            if (_sliding)
+            {
+                TerrainCollide(_normal);
+            }
+
+            // set airstrafe indicator size and color
+            _airStrafeIndicatorForce = vc.magnitude / AirStrafeForce;
+        }
+    }
 
     public void Restart()
     {
         _bounceCharge = 0;
         _bounceReady = false;
+        
+        BounceParticles.Clear();
         
         BounceMeter.localScale = new Vector2(_bounceCharge / BounceChargeTime, 1);
         BounceReady.enabled = _bounceReady;
@@ -124,12 +208,15 @@ public class FPSWalkMK3 : MonoBehaviour
     {
         GetComponent<Rigidbody>().centerOfMass = Vector3.up * Height / 2f;
 
-        _layerMask = LayerMask.GetMask("Enemies", "Terrain");
+        _layerMask = LayerMask.GetMask("EnemyCollision", "Terrain", "TransparentTerrain");
 
         // set the rotator and camera
         _rotator = transform.GetChild(0);
         _playerCamera = _rotator.GetChild(0);
         _cameraHeight = _playerCamera.localPosition.y;
+        
+        // set the camera sensitivity
+        LookSensitivity = SettingsManager.LoadSensitivity();
 
         // set the boxcast parameters
         _boxCastHalfExtents = new Vector3(Width / 2, Width / 2, Width / 2);
@@ -149,6 +236,8 @@ public class FPSWalkMK3 : MonoBehaviour
             Physics.BoxCast(transform.position + transform.up * (Height - (Width / 2)), _boxCastHalfExtents, -transform.up, out hit, transform.rotation, Height - Width, _layerMask)
             && !hit.collider.isTrigger && Vector3.Dot(GetComponent<Rigidbody>().velocity, hit.normal) <= 0)
         {
+            
+            // move the camera down when stepping up
             if (hit.point.y - transform.position.y > 0.1f)
             {
                 var pos = _playerCamera.position;
@@ -174,6 +263,11 @@ public class FPSWalkMK3 : MonoBehaviour
                 _normal = hit.normal;
                 _sliding = Vector3.Angle(transform.up, _normal) > MaxSlope;
                 _grounded = true;
+
+                if (hit.transform.CompareTag("FrictionlessTerrain"))
+                {
+                    _sliding = true;
+                }
             }
 
         }
@@ -230,69 +324,14 @@ public class FPSWalkMK3 : MonoBehaviour
 
         if (_grounded && !_sliding)
         {
-            // set skidding to true if we're moving faster than walkspeed
-            _skidding = GetComponent<Rigidbody>().velocity.magnitude > WalkSpeed;
-
-            //project the direction to move in onto the surface the player is standing on
-            Vector3 targetVelocity = moveVector;
-            targetVelocity = Vector3.ProjectOnPlane(targetVelocity, _normal).normalized; //risky
-            targetVelocity *= WalkSpeed;
-
-            // Apply a force that attempts to reach our target velocity
-            Vector3 vc = Vector3.ClampMagnitude(targetVelocity - GetComponent<Rigidbody>().velocity, Acceleration);
-            GetComponent<Rigidbody>().AddForce(vc, ForceMode.VelocityChange);
+            GroundMovement(moveVector);
         }
         else
         {
-            // air control
-            // project the velocity onto the movevector
-            Vector3 projVel = Vector3.Project(GetComponent<Rigidbody>().velocity, moveVector);
-            
-            // check if the movevector is moving towards or away from the projected velocity
-            bool isAway = Vector3.Dot(moveVector, projVel) <= 0f;
-            
-            // only apply force if moving away from velocity or velocity is below MaxAirSpeed
-            if (projVel.magnitude < MaxAirSpeed || isAway)
-            {
-                // calculate the ideal movement force
-                Vector3 vc = moveVector.normalized * AirStrafeForce;
-                
-                // cap it if it would accelerate beyond MaxAirSpeed directly.
-                if (!isAway)
-                {
-                    vc = Vector3.ClampMagnitude(vc, MaxAirSpeed - projVel.magnitude);
-                }
-                else
-                {
-                    vc = Vector3.ClampMagnitude(vc, MaxAirSpeed + projVel.magnitude);
-                    
-                    // check if the player is strafing into a slope
-                    if (_sliding && Vector3.Dot(vc, Vector3.ProjectOnPlane(_normal, Vector3.up)) < 0)
-                    {
-                        // prevent them from sliding up the slope
-                        vc = Vector3.ClampMagnitude(vc, projVel.magnitude);
-                    }
-                }
-                
-                
-                // Apply the force
-                GetComponent<Rigidbody>().AddForce(vc, ForceMode.VelocityChange);
-                
-                if (_sliding)
-                {
-                    TerrainCollide(_normal);
-                }
-            }
+            AirMovement(moveVector);
         }
-
-
-
-        //increment the jump cooldown
-        _jumpCoolDown = Mathf.Max(0, _jumpCoolDown - 1);
-
-        
     }
-
+    
     // Update is called once per frame
     void Update()
     {
@@ -301,17 +340,31 @@ public class FPSWalkMK3 : MonoBehaviour
         
         if(!LockLook)
         {
+            // return the camera to it's resting height after stepping up
             _playerCamera.position = new Vector3(_playerCamera.position.x, Mathf.Min(_rotator.position.y + _cameraHeight, _playerCamera.position.y + Time.deltaTime * CameraStepUpSpeed), _playerCamera.position.z);
             
+            // jump when appropriate
             if (_grounded && !_sliding && !_skidding && !_jumpLock && !_airJumpLock && Input.GetButton("Jump"))
             {
                 Jump();
             }
             
+            // reset jumplock
             if (Input.GetButtonUp("Jump"))
             {
                 _jumpLock = false;
                 _airJumpLock = false;
+            }
+            
+            // update airstrafe indicator
+            if (_grounded && !_sliding)
+            {
+                AirStrafeIndicator.localScale = new Vector2(0, 1);
+            }
+            else
+            {
+                AirStrafeIndicator.localScale = new Vector2(Mathf.Lerp(AirStrafeIndicator.localScale.x, _airStrafeIndicatorForce, Time.deltaTime * 10), 1);
+                AirStrafeIndicator.GetComponent<RawImage>().color = AirStrafeIndicatorColor.Evaluate(_airStrafeIndicatorForce);
             }
 
             // rotate the camera
