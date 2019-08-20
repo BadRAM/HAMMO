@@ -50,6 +50,9 @@ public class Enemy : MonoBehaviour
         GetComponent<Rigidbody>().velocity = Vector3.zero;
         GetComponent<Rigidbody>().isKinematic = false;
         
+        ChargeParticles.Clear();
+        StunParticles.Clear();
+        
         Alive = true;
         Alerted = false;
         

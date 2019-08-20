@@ -45,10 +45,10 @@ public class Player : MonoBehaviour
     public void Goal()
     {
         WinScreen.enabled = true;
-        WinTime.text = FloatToTime(_time);
+        WinTime.text = FloatToTime.Convert(_time);
         ScoreTracker.AddScore(SceneManager.GetActiveScene().buildIndex, _time);
         float topscore = ScoreTracker.GetScore(SceneManager.GetActiveScene().buildIndex);
-        HighScoreTime.text = FloatToTime(topscore);
+        HighScoreTime.text = FloatToTime.Convert(topscore);
         NewRecord.enabled = _time == topscore;
         FindObjectOfType<LevelRanks>().SetRankIndicator(WinRank, _time);
         FindObjectOfType<LevelRanks>().SetRankIndicator(HighScoreRank, topscore);
@@ -89,20 +89,24 @@ public class Player : MonoBehaviour
 
     }
 
-    string FloatToTime(float time)
-    {
-        int minutes = (int)time / 60;
-        int seconds = (int)time - 60 * minutes;
-        int milliseconds = (int)(1000 * (time - minutes * 60 - seconds));
-        return string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
-    }
-
     public void Restart()
     {
-        StartScreen.enabled = true;
+        foreach (GameObject i in GameObject.FindGameObjectsWithTag("Effect"))
+        {
+            Destroy(i);
+        }
+        
+        foreach (GameObject i in GameObject.FindGameObjectsWithTag("Projectile"))
+        {
+            Destroy(i);
+        }
+        
+        RestartPrompt.enabled = false;
+
         Time.timeScale = 0;
         
-        // show the 
+        // show the Start Screen
+        StartScreen.enabled = true;
         StartScreenRanks.text = FindObjectOfType<LevelRanks>().GetRankPreview(ScoreTracker.GetScore(SceneManager.GetActiveScene().buildIndex));
 
         HUD.enabled = true;
@@ -124,16 +128,6 @@ public class Player : MonoBehaviour
         {
             i.SetActive(true);
             i.GetComponent<Enemy>().Reset();
-        }
-
-        foreach (GameObject i in GameObject.FindGameObjectsWithTag("Effect"))
-        {
-            Destroy(i);
-        }
-        
-        foreach (GameObject i in GameObject.FindGameObjectsWithTag("Projectile"))
-        {
-            Destroy(i);
         }
     }
 
@@ -158,10 +152,16 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Time.timeScale != 0 && Input.GetButtonDown("cheat"))
+        {
+            IncrementHammo(10);
+            _time += 1000;
+        }
+        
         Hammometer.text = Hammo.ToString();
         //Timer.text = _time.ToString();
 
-        Timer.text = FloatToTime(_time);
+        Timer.text = FloatToTime.Convert(_time);
 
         int enemyCount = 0;
         foreach (GameObject i in GameObject.FindGameObjectsWithTag("Enemy"))

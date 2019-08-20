@@ -4841,7 +4841,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 867186725183146332}
+  - {fileID: 2828293869501953473}
   m_Father: {fileID: 4937229257631448920}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4864,7 +4864,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1797967007504241230
 GameObject:
@@ -5035,6 +5035,56 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!95 &3033760579104560571
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2513376104550330153}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 4dab9a7f5511c0b4f84248ab03925bf0, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!1 &5951568220135158162
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2828293869501953473}
+  m_Layer: 9
+  m_Name: RocketHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2828293869501953473
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5951568220135158162}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_Children:
+  - {fileID: 1493532171338227002}
+  m_Father: {fileID: 4543478165142821109}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &9053610883092734134
 GameObject:
   m_ObjectHideFlags: 0
@@ -9789,18 +9839,13 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!1001 &5292408467202531910
+--- !u!1001 &5890887903514605088
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 4543478165142821109}
+    m_TransformParent: {fileID: 2828293869501953473}
     m_Modifications:
-    - target: {fileID: -927199367670048503, guid: 61e3637fc3c68b645a948e4b9ae21a45,
-        type: 3}
-      propertyPath: m_Name
-      value: Rocket
-      objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 61e3637fc3c68b645a948e4b9ae21a45,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -9819,7 +9864,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: 61e3637fc3c68b645a948e4b9ae21a45,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: -0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 61e3637fc3c68b645a948e4b9ae21a45,
         type: 3}
@@ -9834,7 +9879,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: 61e3637fc3c68b645a948e4b9ae21a45,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.7071067
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 61e3637fc3c68b645a948e4b9ae21a45,
         type: 3}
@@ -9856,26 +9901,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -4216859302048453862, guid: 61e3637fc3c68b645a948e4b9ae21a45,
+    - target: {fileID: -927199367670048503, guid: 61e3637fc3c68b645a948e4b9ae21a45,
         type: 3}
-      propertyPath: m_LocalScale.x
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: -4216859302048453862, guid: 61e3637fc3c68b645a948e4b9ae21a45,
-        type: 3}
-      propertyPath: m_LocalScale.y
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: -4216859302048453862, guid: 61e3637fc3c68b645a948e4b9ae21a45,
-        type: 3}
-      propertyPath: m_LocalScale.z
-      value: 10
+      propertyPath: m_Name
+      value: Rocket
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 61e3637fc3c68b645a948e4b9ae21a45, type: 3}
---- !u!4 &867186725183146332 stripped
+--- !u!1 &2513376104550330153 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -927199367670048503, guid: 61e3637fc3c68b645a948e4b9ae21a45,
+    type: 3}
+  m_PrefabInstance: {fileID: 5890887903514605088}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1493532171338227002 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: 61e3637fc3c68b645a948e4b9ae21a45,
     type: 3}
-  m_PrefabInstance: {fileID: 5292408467202531910}
+  m_PrefabInstance: {fileID: 5890887903514605088}
   m_PrefabAsset: {fileID: 0}

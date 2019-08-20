@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5838322973871408252}
   - component: {fileID: 5838322973871408253}
   m_Layer: 0
-  m_Name: Directional Light
+  m_Name: Skybox aligned Sun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24,7 +24,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5838322973871408254}
-  m_LocalRotation: {x: 0.8500513, y: -0.0065133716, z: 0.46084473, w: 0.25493637}
+  m_LocalRotation: {x: 0.8500531, y: -0.0065147206, z: 0.46084192, w: 0.2549355}
   m_LocalPosition: {x: 0, y: 41, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -42,8 +42,8 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 1
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 1.25
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
