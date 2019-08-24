@@ -14,6 +14,7 @@ public class Rocket : MonoBehaviour
     private float _explosionDuration = -1;
     public AudioClip ExplosionSound;
     public GameObject DisableOnHit;
+    private int _layerMask;
 
     public Player Player;
     //public float StunDuration = 3;
@@ -22,6 +23,7 @@ public class Rocket : MonoBehaviour
     void Start()
     {
         GetComponent<Rigidbody>().velocity = transform.forward * Speed;
+        _layerMask = LayerMask.GetMask("EnemyCollision", "Terrain", "TransparentTerrain");
     }
 
     private void FixedUpdate()
@@ -61,8 +63,10 @@ public class Rocket : MonoBehaviour
 
         foreach (GameObject i in GameObject.FindGameObjectsWithTag("Enemy"))
         {
-            if (Vector3.Distance(transform.position, i.transform.position + i.GetComponent<Rigidbody>().centerOfMass) <
-                BlastRadius)
+            RaycastHit hit;
+            if (Vector3.Distance(transform.position, i.transform.position + i.GetComponent<Rigidbody>().centerOfMass) < BlastRadius
+                && Physics.Raycast(transform.position, (i.transform.position - transform.position).normalized, out hit, BlastRadius, _layerMask)
+                && hit.transform.parent == i.transform)
             {
                 i.GetComponent<Enemy>().Stun();
                 i.GetComponent<Rigidbody>().AddExplosionForce(BlastStrength, transform.position, BlastRadius,

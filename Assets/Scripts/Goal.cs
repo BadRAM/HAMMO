@@ -6,7 +6,7 @@ public class Goal : MonoBehaviour
 {
     private void OnTriggerStay(Collider other)
     {
-        if (other.tag == "Player")
+        if (other.CompareTag("Player"))
         {
             bool l = true;
             foreach (GameObject i in GameObject.FindGameObjectsWithTag("Enemy"))

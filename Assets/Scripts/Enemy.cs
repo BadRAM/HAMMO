@@ -64,6 +64,8 @@ public class Enemy : MonoBehaviour
         }
 
         transform.position = _startPos;
+        
+        Recover();
     }
 
     // Update is called once per frame

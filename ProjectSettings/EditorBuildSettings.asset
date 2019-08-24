@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Learn2Strafe.unity
     guid: 329a9a22e656f2746ba16deb539e96d3
+  - enabled: 1
+    path: Assets/Scenes/Hell.unity
+    guid: 5c3f1615a73aa974e804c0614d714c9e
   m_configObjects: {}

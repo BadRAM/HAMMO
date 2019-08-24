@@ -10,7 +10,7 @@ public class FPSWalkMK3 : MonoBehaviour
     // this is a First Person movement controller that uses a box collider and a boxcast to interact with map geometry.
     
     //TODO:
-    //fix falling into the floor near tall steps
+    //fix falling into the floor near tall steps - fixed: ensure that tall steps are not a part of the same collider
     
 
     [Header("Size")]
@@ -36,6 +36,7 @@ public class FPSWalkMK3 : MonoBehaviour
     public float BounceEffectiveness = 0.5f;
 
     [Header("Effects")]
+    public ParticleSystem SmokeTrail;
     public AudioClip JumpSound;
     public ParticleSystem BounceParticles;
     public RectTransform BounceMeter;
@@ -50,6 +51,7 @@ public class FPSWalkMK3 : MonoBehaviour
     // Transforms
     private Transform _playerCamera;
     private Transform _rotator;
+    private float _spawnFacing;
 
     // Input handling
     private float _cameraX;
@@ -97,7 +99,7 @@ public class FPSWalkMK3 : MonoBehaviour
         
         // manage state
         _grounded = false;
-        Debug.Log("Bounced after " + _jumpCounter + " ticks.");
+        //Debug.Log("Bounced after " + _jumpCounter + " ticks.");
         _jumpCounter = 0;
 
         if (Input.GetButton("Jump"))
@@ -126,7 +128,7 @@ public class FPSWalkMK3 : MonoBehaviour
     {
         if (_jumpCounter < 0)
         {
-            Debug.Log("Landed after " + _jumpCounter + " ticks.");
+            //Debug.Log("Landed after " + _jumpCounter + " ticks.");
             _jumpCounter = 0;
         }
 
@@ -192,7 +194,7 @@ public class FPSWalkMK3 : MonoBehaviour
         }
     }
 
-    public void Restart()
+    public void Restart(bool level, Quaternion checkpointForward)
     {
         _bounceCharge = 0;
         _bounceReady = false;
@@ -201,6 +203,15 @@ public class FPSWalkMK3 : MonoBehaviour
         
         BounceMeter.localScale = new Vector2(_bounceCharge / BounceChargeTime, 1);
         BounceReady.enabled = _bounceReady;
+
+        if (level)
+        {
+            _cameraX = _spawnFacing;
+        }
+        else
+        {
+            _cameraX = checkpointForward.eulerAngles.y;
+        }
     }
     
     // Use this for initialization
@@ -214,6 +225,11 @@ public class FPSWalkMK3 : MonoBehaviour
         _rotator = transform.GetChild(0);
         _playerCamera = _rotator.GetChild(0);
         _cameraHeight = _playerCamera.localPosition.y;
+        
+        // set the facing
+        _spawnFacing = transform.rotation.eulerAngles.y;
+        transform.rotation = Quaternion.Euler(0, 0, 0);
+        _cameraX = _spawnFacing;
         
         // set the camera sensitivity
         LookSensitivity = SettingsManager.LoadSensitivity();
@@ -311,6 +327,16 @@ public class FPSWalkMK3 : MonoBehaviour
         
         BounceMeter.localScale = new Vector2(_bounceCharge / BounceChargeTime, 1);
         BounceReady.enabled = _bounceReady;
+
+        // turn the smoke trail on or off if the player is in the air or not
+        if (!_grounded && !SmokeTrail.isPlaying)
+        {
+            SmokeTrail.Play();
+        }
+        if (_grounded && SmokeTrail.isPlaying)
+        {
+            SmokeTrail.Pause();
+        }
 
         // accelerate the player according to input
 

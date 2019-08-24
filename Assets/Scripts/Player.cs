@@ -11,9 +11,13 @@ public class Player : MonoBehaviour
     public int MaxHammo = 30;
     public int StartingHammo = 10;
     [SerializeField] private int Hammo;
-    private float _walkSpeed;
 
     private float _time = 0f;
+    private float _checkpointTime;
+    private int _checkpointHammo;
+    private int _restartPenaltyCount;
+    public float RestartPenalty = 1;
+    private Checkpoint _checkpoint;
     private Vector3 _spawnPoint;
     
     public TextMeshProUGUI Hammometer;
@@ -25,7 +29,7 @@ public class Player : MonoBehaviour
     
     public Canvas StartScreen;
     public TextMeshProUGUI StartScreenRanks;
-    
+
     public Canvas HUD;
     
     public Canvas PauseMenu;
@@ -53,6 +57,16 @@ public class Player : MonoBehaviour
         FindObjectOfType<LevelRanks>().SetRankIndicator(WinRank, _time);
         FindObjectOfType<LevelRanks>().SetRankIndicator(HighScoreRank, topscore);
         Time.timeScale = 0f;
+    }
+
+    public void SetCheckpoint(Checkpoint checkpoint)
+    {
+        if (checkpoint != _checkpoint)
+        {
+            _checkpoint = checkpoint;
+            _checkpointTime = _time;
+            _checkpointHammo = Hammo;
+        }
     }
 
     public void Kill()
@@ -89,8 +103,14 @@ public class Player : MonoBehaviour
 
     }
 
-    public void Restart()
+    public void RestartLevel()
     {
+        Restart(true);
+    }
+
+    public void Restart(bool level)
+    {
+        // delete all Effects and Projectiles
         foreach (GameObject i in GameObject.FindGameObjectsWithTag("Effect"))
         {
             Destroy(i);
@@ -100,34 +120,72 @@ public class Player : MonoBehaviour
         {
             Destroy(i);
         }
-        
-        RestartPrompt.enabled = false;
 
+        // reset all enemies
+        foreach(GameObject i in _enemies)
+        {
+            i.SetActive(true);
+            i.GetComponent<Enemy>().Reset();
+        }
+        
+        // pause the game
         Time.timeScale = 0;
+        
+        // Check if the level has been completed. perform level restart if so.
+        if (WinScreen.enabled || _checkpoint == null)
+        {
+            level = true;
+        }
+        
+        // disable all popup screens
+        WinScreen.enabled = false;
+        PauseMenu.enabled = false;
+        LoseScreen.enabled = false;
+        RestartPrompt.enabled = false;
         
         // show the Start Screen
         StartScreen.enabled = true;
         StartScreenRanks.text = FindObjectOfType<LevelRanks>().GetRankPreview(ScoreTracker.GetScore(SceneManager.GetActiveScene().buildIndex));
 
-        HUD.enabled = true;
+        GetComponent<PlayerWeapon>().Restart();
 
-        _time = 0f;
-        Hammo = StartingHammo;
-        transform.position = _spawnPoint;
+        if (level)
+        {
+            GetComponent<FPSWalkMK3>().Restart(level, Quaternion.identity);
+        }
+        else
+        {
+            GetComponent<FPSWalkMK3>().Restart(level, _checkpoint.transform.rotation);
+        }
+        
         GetComponent<Rigidbody>().velocity = Vector3.zero;
 
-        WinScreen.enabled = false;
-        PauseMenu.enabled = false;
-        LoseScreen.enabled = false;
-
-        GetComponent<PlayerWeapon>().Restart();
+        //HUD.enabled = true;
         
-        GetComponent<FPSWalkMK3>().Restart();
+        _restartPenaltyCount += 1;
+        _time = _checkpointTime + RestartPenalty * _restartPenaltyCount;
 
-        foreach(GameObject i in _enemies)
+        
+        if (level || _checkpoint == null)
         {
-            i.SetActive(true);
-            i.GetComponent<Enemy>().Reset();
+            _restartPenaltyCount = 0;
+            _time = 0f;
+            Hammo = StartingHammo;
+            transform.position = _spawnPoint;
+            
+            // reset checkpoints
+            _checkpoint = null;
+            foreach (Checkpoint i in FindObjectsOfType<Checkpoint>())
+            {
+                i.Restart();
+            }
+        }
+        else
+        {
+            Hammo = _checkpointHammo;
+            transform.position = _checkpoint.transform.position;
+            transform.rotation = _checkpoint.transform.rotation;
+            _checkpoint.DestroyEnemies();
         }
     }
 
@@ -139,7 +197,7 @@ public class Player : MonoBehaviour
         _maxEnemies = _enemies.Length;
         _spawnPoint = transform.position;
         
-        Restart();
+        Restart(true);
     }
 
     void FixedUpdate()
@@ -174,6 +232,28 @@ public class Player : MonoBehaviour
 
         RemainingEnemies.text = enemyCount + "/" + _maxEnemies;
         
+        // start the level when the player clicks
+        if (StartScreen.enabled)
+        {
+            Time.timeScale = 0f;
+
+            if (Input.GetButtonDown("Fire1"))
+            {
+                GetComponent<PlayerWeapon>().Fire();
+                StartScreen.enabled = false;
+                Time.timeScale = 1f;
+            }
+            else if 
+            (Input.GetButtonDown("Horizontal") ||
+             Input.GetButtonDown("Vertical") ||
+             Input.GetButtonDown("Jump") ||
+             Input.GetButtonDown("Pause"))
+            {
+                StartScreen.enabled = false;
+                Time.timeScale = 1f;
+            }
+        }
+        
         if (Input.GetButtonDown("Pause"))
         {
             TogglePause();
@@ -181,26 +261,9 @@ public class Player : MonoBehaviour
 
         if (Input.GetButtonDown("Restart"))
         {
-            Restart();
+            Restart(false);
         }
-
-        // start the level when the player clicks
-        if (StartScreen.enabled)
-        {
-            _time = 0f;
-            Time.timeScale = 0f;
-
-            if (Input.GetButtonDown("Horizontal") ||
-                Input.GetButtonDown("Vertical") ||
-                Input.GetButtonDown("Jump") ||
-                Input.GetButtonDown("Fire1"))
-            {
-                StartScreen.enabled = false;
-                Time.timeScale = 1f;
-            }
-        }
-
-
+        
         //lock cursor while in menus
         if (PauseMenu.enabled || WinScreen.enabled || LoseScreen.enabled)
         {

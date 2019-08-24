@@ -9,6 +9,7 @@ TagManager:
   - Effect
   - Projectile
   - FrictionlessTerrain
+  - Checkpoint
   layers:
   - Default
   - TransparentFX
