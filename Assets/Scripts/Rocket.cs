@@ -64,9 +64,9 @@ public class Rocket : MonoBehaviour
         foreach (GameObject i in GameObject.FindGameObjectsWithTag("Enemy"))
         {
             RaycastHit hit;
+            Physics.Raycast(transform.position, (i.transform.position - transform.position).normalized, out hit, BlastRadius, _layerMask);
             if (Vector3.Distance(transform.position, i.transform.position + i.GetComponent<Rigidbody>().centerOfMass) < BlastRadius
-                && Physics.Raycast(transform.position, (i.transform.position - transform.position).normalized, out hit, BlastRadius, _layerMask)
-                && hit.transform.parent == i.transform)
+                && hit.transform.IsChildOf(i.transform))
             {
                 i.GetComponent<Enemy>().Stun();
                 i.GetComponent<Rigidbody>().AddExplosionForce(BlastStrength, transform.position, BlastRadius,

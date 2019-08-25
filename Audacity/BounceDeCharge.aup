@@ -1,0 +1,73 @@
+<?xml version="1.0" standalone="no" ?>
+<!DOCTYPE project PUBLIC "-//audacityproject-1.3.0//DTD//EN" "http://audacity.sourceforge.net/xml/audacityproject-1.3.0.dtd" >
+<project xmlns="http://audacity.sourceforge.net/xml/" projname="BounceDeCharge_data" version="1.3.0" audacityversion="2.3.0" sel0="0.0000034401" sel1="1.2354002655" vpos="0" h="0.0000000000" zoom="926.8283920568" rate="44100.0" snapto="off" selectionformat="hh:mm:ss + milliseconds" frequencyformat="Hz" bandwidthformat="octaves">
+	<tags>
+		<tag name="Software" value="Lavf57.56.101"/>
+	</tags>
+	<wavetrack name="BounceDeCharge" channel="0" linked="1" mute="0" solo="0" height="150" minimized="0" isSelected="0" rate="44100" gain="1.0" pan="0.0" colorindex="0">
+		<waveclip offset="0.00000000" colorindex="0">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="42611">
+				<waveblock start="0">
+					<simpleblockfile filename="e0800352.au" len="42611" min="-1.0" max="0.999969" rms="0.332213"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="BounceDeCharge" channel="1" linked="0" mute="0" solo="0" height="150" minimized="0" isSelected="0" rate="44100" gain="1.0" pan="0.0" colorindex="0">
+		<waveclip offset="0.00000000" colorindex="0">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="42611">
+				<waveblock start="0">
+					<simpleblockfile filename="e0800937.au" len="42611" min="-1.0" max="0.999969" rms="0.313183"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="393070__sbaneat__maquina-brazo-2" channel="0" linked="1" mute="0" solo="0" height="150" minimized="0" isSelected="0" rate="44100" gain="1.0" pan="0.0" colorindex="0">
+		<waveclip offset="0.00000000" colorindex="0">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="42860">
+				<waveblock start="0">
+					<simpleblockfile filename="e080031e.au" len="42860" min="-0.255443" max="0.312607" rms="0.016333"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="393070__sbaneat__maquina-brazo-2" channel="1" linked="0" mute="0" solo="0" height="150" minimized="0" isSelected="0" rate="44100" gain="1.0" pan="0.0" colorindex="0">
+		<waveclip offset="0.00000000" colorindex="0">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="42860">
+				<waveblock start="0">
+					<simpleblockfile filename="e0800124.au" len="42860" min="-0.255443" max="0.312607" rms="0.016333"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="330377__illusiaproductions__sauna-hiss" channel="0" linked="1" mute="0" solo="0" height="150" minimized="0" isSelected="1" rate="44100" gain="0.354813" pan="0.0" colorindex="0">
+		<waveclip offset="-0.16723356" colorindex="0">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="225077">
+				<waveblock start="0">
+					<simpleblockfile filename="e0800934.au" len="7232" min="-0.239366" max="0.246985" rms="0.052267"/>
+				</waveblock>
+				<waveblock start="7232">
+					<simpleblockfile filename="e0800fd9.au" len="217845" min="-1.243826" max="1.213952" rms="0.080641"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+	<wavetrack name="330377__illusiaproductions__sauna-hiss" channel="1" linked="0" mute="0" solo="0" height="150" minimized="0" isSelected="1" rate="44100" gain="0.354813" pan="0.0" colorindex="0">
+		<waveclip offset="-0.16723356" colorindex="0">
+			<sequence maxsamples="262144" sampleformat="262159" numsamples="225077">
+				<waveblock start="0">
+					<simpleblockfile filename="e0800cf9.au" len="7232" min="-0.217047" max="0.211533" rms="0.049291"/>
+				</waveblock>
+				<waveblock start="7232">
+					<simpleblockfile filename="e0800a4c.au" len="217845" min="-1.1414" max="1.114382" rms="0.076251"/>
+				</waveblock>
+			</sequence>
+			<envelope numpoints="0"/>
+		</waveclip>
+	</wavetrack>
+</project>

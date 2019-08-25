@@ -38,6 +38,9 @@ public class FPSWalkMK3 : MonoBehaviour
     [Header("Effects")]
     public ParticleSystem SmokeTrail;
     public AudioClip JumpSound;
+    public AudioClip BounceSound;
+    public AudioSource BounceChargeSound;
+    public AudioSource BounceDeChargeSound;
     public ParticleSystem BounceParticles;
     public RectTransform BounceMeter;
     public TextMeshProUGUI BounceReady;
@@ -109,7 +112,13 @@ public class FPSWalkMK3 : MonoBehaviour
         GetComponent<Player>().IncrementHammo(-1);
 
         // activate effects
-        GetComponent<AudioSource>().PlayOneShot(JumpSound);
+        GetComponent<AudioSource>().PlayOneShot(BounceSound);
+        if (!BounceDeChargeSound.isPlaying)
+        {
+            BounceDeChargeSound.time = 0;
+            BounceDeChargeSound.Play();
+        }
+        BounceChargeSound.Stop();
         ParticleSystem.MainModule psmain = BounceParticles.main;
         psmain.startSpeed = v - 5;
         BounceParticles.Play();
@@ -200,10 +209,13 @@ public class FPSWalkMK3 : MonoBehaviour
         _bounceReady = false;
         
         BounceParticles.Clear();
-        
+        BounceChargeSound.Stop();
+        BounceDeChargeSound.Stop();
+
         BounceMeter.localScale = new Vector2(_bounceCharge / BounceChargeTime, 1);
         BounceReady.enabled = _bounceReady;
 
+        _cameraY = 0;
         if (level)
         {
             _cameraX = _spawnFacing;
@@ -298,6 +310,11 @@ public class FPSWalkMK3 : MonoBehaviour
         {
             if (Input.GetButton("Jump"))
             {
+                if (!BounceChargeSound.isPlaying)
+                {
+                    BounceChargeSound.Play();
+                }
+                
                 _airJumpLock = true;
                 
                 _bounceCharge += Time.deltaTime;
@@ -319,12 +336,15 @@ public class FPSWalkMK3 : MonoBehaviour
                 }
             }
         }
-        else
+        else if (_bounceCharge > 0)
         {
+            BounceChargeSound.Stop();
+            BounceDeChargeSound.time = -(_bounceCharge / BounceChargeTime) + 1;
+            BounceDeChargeSound.Play();
             _bounceCharge = 0f;
             _bounceReady = false;
         }
-        
+
         BounceMeter.localScale = new Vector2(_bounceCharge / BounceChargeTime, 1);
         BounceReady.enabled = _bounceReady;
 
@@ -380,6 +400,13 @@ public class FPSWalkMK3 : MonoBehaviour
             {
                 _jumpLock = false;
                 _airJumpLock = false;
+
+                if (_bounceCharge > 0)
+                {
+                    BounceDeChargeSound.time = -(_bounceCharge / BounceChargeTime) + 1;
+                    BounceChargeSound.Stop();
+                    BounceDeChargeSound.Play();
+                }
             }
             
             // update airstrafe indicator
