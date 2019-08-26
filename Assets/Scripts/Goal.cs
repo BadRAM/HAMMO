@@ -21,6 +21,10 @@ public class Goal : MonoBehaviour
             {
                 PlayerLink.playerLink.Goal();
             }
+            else
+            {
+                PlayerLink.playerLink.Incomplete();
+            }
         }
     }
 }

@@ -103,11 +103,6 @@ public class PlayerWeapon : MonoBehaviour
             BeamCrosshair.SetActive(true);
             WeaponInUse = 1;
         }
-
-        if (Input.GetButtonDown("Fire1") && Time.timeScale == 1)
-        {
-            Fire();
-        }
     }
 
     private void FixedUpdate()

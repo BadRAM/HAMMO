@@ -42,6 +42,8 @@ public class Player : MonoBehaviour
     public TextMeshProUGUI NewRecord;
 
     public Canvas LoseScreen;
+    public Canvas IncompleteScreen;
+    public TextMeshProUGUI IncompleteText;
 
     private GameObject[] _enemies;
 
@@ -57,6 +59,30 @@ public class Player : MonoBehaviour
         FindObjectOfType<LevelRanks>().SetRankIndicator(WinRank, _time);
         FindObjectOfType<LevelRanks>().SetRankIndicator(HighScoreRank, topscore);
         Time.timeScale = 0f;
+    }
+
+    // is called when the player reaches the goal without defeating all enemies
+    public void Incomplete()
+    {
+        int e = 0;
+        foreach (GameObject i in _enemies)
+        {
+            if (i.activeSelf)
+            {
+                e++;
+            }
+        }
+        IncompleteScreen.enabled = true;
+        if (e == 1)
+        {
+            IncompleteText.text = "You missed a pawn";
+        }
+        else
+        {
+            IncompleteText.text = "You missed some pawns";
+        }
+        
+        Time.timeScale = 0;
     }
 
     public void SetCheckpoint(Checkpoint checkpoint)
@@ -131,7 +157,7 @@ public class Player : MonoBehaviour
         // pause the game
         Time.timeScale = 0;
         
-        // Check if the level has been completed. perform level restart if so.
+        // Check if the level has been completed, or the first checkpoint not reached. perform level restart if so.
         if (WinScreen.enabled || _checkpoint == null)
         {
             level = true;
@@ -139,6 +165,7 @@ public class Player : MonoBehaviour
         
         // disable all popup screens
         WinScreen.enabled = false;
+        IncompleteScreen.enabled = false;
         PauseMenu.enabled = false;
         LoseScreen.enabled = false;
         RestartPrompt.enabled = false;
@@ -235,7 +262,7 @@ public class Player : MonoBehaviour
         // start the level when the player clicks
         if (StartScreen.enabled)
         {
-            Time.timeScale = 0f;
+            //Time.timeScale = 0f;
 
             if (Input.GetButtonDown("Fire1"))
             {
@@ -253,6 +280,11 @@ public class Player : MonoBehaviour
                 Time.timeScale = 1f;
             }
         }
+        else if (Input.GetButtonDown("Fire1") && Time.timeScale > 0)
+        {
+            GetComponent<PlayerWeapon>().Fire();
+        }
+
         
         if (Input.GetButtonDown("Pause"))
         {
@@ -265,7 +297,7 @@ public class Player : MonoBehaviour
         }
         
         //lock cursor while in menus
-        if (PauseMenu.enabled || WinScreen.enabled || LoseScreen.enabled)
+        if (PauseMenu.enabled || WinScreen.enabled || LoseScreen.enabled || IncompleteScreen.enabled)
         {
             GetComponent<FPSWalkMK3>().LockLook = true;
             Cursor.visible = true;

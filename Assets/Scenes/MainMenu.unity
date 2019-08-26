@@ -3806,7 +3806,7 @@ PrefabInstance:
         type: 3}
       propertyPath: Ranks
       value: 
-      objectReference: {fileID: 8234444448211499077, guid: 1a9267accc0bda44da1aa5f21bba639a,
+      objectReference: {fileID: 1470715469018362855, guid: 438976bc9d7d150489eab19ec0493380,
         type: 3}
     - target: {fileID: 1815242896981709398, guid: ba91fa3a5313bb5448ef58e6a6a79e94,
         type: 3}

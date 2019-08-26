@@ -276,8 +276,15 @@ public class FPSWalkMK3 : MonoBehaviour
             // move to collision
             transform.position = new Vector3(transform.position.x, hit.point.y , transform.position.z);
             
+            // decide if sliding
+            _sliding = Vector3.Angle(transform.up, hit.normal) > MaxSlope;
+            if (hit.transform.CompareTag("FrictionlessTerrain"))
+            {
+                _sliding = true;
+            }
+            
             // bounce if charged
-            if (_bounceReady)
+            if (_bounceReady && !_sliding)
             {
                 Bounce();
             }
@@ -289,13 +296,7 @@ public class FPSWalkMK3 : MonoBehaviour
                 
                 // set status
                 _normal = hit.normal;
-                _sliding = Vector3.Angle(transform.up, _normal) > MaxSlope;
                 _grounded = true;
-
-                if (hit.transform.CompareTag("FrictionlessTerrain"))
-                {
-                    _sliding = true;
-                }
             }
 
         }
@@ -306,7 +307,7 @@ public class FPSWalkMK3 : MonoBehaviour
         }
 
         // Charge Bounce
-        if (!_grounded && !_sliding && !_jumpLock)
+        if ((!_grounded || _sliding) && !_jumpLock)
         {
             if (Input.GetButton("Jump"))
             {

@@ -26,4 +26,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/WallJump.unity
     guid: 97e1f742020ca5b449bcca7728f58581
+  - enabled: 1
+    path: Assets/Scenes/Big S.unity
+    guid: 1d2bcd52830f3534b9ef615b8234c5dc
   m_configObjects: {}
