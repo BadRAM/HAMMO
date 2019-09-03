@@ -559,7 +559,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh44320
+  m_Name: pb_Mesh20642
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -732,7 +732,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh44288
+  m_Name: pb_Mesh20610
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1515,7 +1515,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-159302
+  m_Name: pb_Mesh20630
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1695,7 +1695,7 @@ GameObject:
   - component: {fileID: 1755412644}
   - component: {fileID: 1755412643}
   - component: {fileID: 1755412642}
-  m_Layer: 12
+  m_Layer: 13
   m_Name: Cube (1)
   m_TagString: FrictionlessTerrain
   m_Icon: {fileID: 0}
@@ -2091,8 +2091,8 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6a19cb3b8b5aa0445b77de8725d36e80, type: 2}
-  - {fileID: 2100000, guid: 6a19cb3b8b5aa0445b77de8725d36e80, type: 2}
+  - {fileID: 2100000, guid: d850db72a6c889940bc5c4e9342bbac7, type: 2}
+  - {fileID: 2100000, guid: d850db72a6c889940bc5c4e9342bbac7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2134,7 +2134,7 @@ GameObject:
   - component: {fileID: 1777695879}
   - component: {fileID: 1777695878}
   - component: {fileID: 1777695877}
-  m_Layer: 12
+  m_Layer: 13
   m_Name: Cube
   m_TagString: FrictionlessTerrain
   m_Icon: {fileID: 0}
@@ -2530,8 +2530,8 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6a19cb3b8b5aa0445b77de8725d36e80, type: 2}
-  - {fileID: 2100000, guid: 6a19cb3b8b5aa0445b77de8725d36e80, type: 2}
+  - {fileID: 2100000, guid: d850db72a6c889940bc5c4e9342bbac7, type: 2}
+  - {fileID: 2100000, guid: d850db72a6c889940bc5c4e9342bbac7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2735,9 +2735,9 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3132464509279922425, guid: b5951a5ef9803584fad2c415b04b9f8d,
+    - target: {fileID: 3257464184081882379, guid: b5951a5ef9803584fad2c415b04b9f8d,
         type: 3}
-      propertyPath: StartingHammo
+      propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

@@ -102,7 +102,7 @@ public class FPSWalkMK3 : MonoBehaviour
         
         // manage state
         _grounded = false;
-        //Debug.Log("Bounced after " + _jumpCounter + " ticks.");
+        Debug.Log("Bounced after " + -_jumpCounter * Time.fixedDeltaTime + " seconds."); 
         _jumpCounter = 0;
 
         if (Input.GetButton("Jump"))

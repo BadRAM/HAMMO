@@ -729,7 +729,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: c49b62b8d1570e04bb962d9288e8696f, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.4
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -3005,7 +3005,7 @@ MonoBehaviour:
   Acceleration: 1.5
   AirStrafeForce: 3
   MaxSlope: 40
-  JumpForce: 5.4
+  JumpForce: 5.3
   _grounded: 0
   LockLook: 0
   BounceChargeTime: 0.25
@@ -8508,7 +8508,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 7ac864585c25ccc45a0d0adf72d671b7, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.4
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 0
   Mute: 0
