@@ -268,7 +268,7 @@ public class Player : MonoBehaviour
             {
                 GetComponent<PlayerWeapon>().Fire();
                 StartScreen.enabled = false;
-                Time.timeScale = 1f;
+                Time.timeScale = 1;
             }
             else if 
             (Input.GetButtonDown("Horizontal") ||
@@ -277,7 +277,7 @@ public class Player : MonoBehaviour
              Input.GetButtonDown("Pause"))
             {
                 StartScreen.enabled = false;
-                Time.timeScale = 1f;
+                Time.timeScale = 1;
             }
         }
         else if (Input.GetButtonDown("Fire1") && Time.timeScale > 0)

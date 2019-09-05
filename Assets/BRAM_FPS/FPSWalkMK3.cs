@@ -253,26 +253,25 @@ public class FPSWalkMK3 : MonoBehaviour
     // FixedUpdate is called once per physics tick
     void FixedUpdate()
     {
-        // apply gravity
-        GetComponent<Rigidbody>().AddForce(Physics.gravity, ForceMode.Acceleration);
+        _normal = Vector3.up;
 
         //check for a collision with ground, and stop the player if one is detected
+        Vector3 center = transform.position + transform.up * (Height - (Width / 2));
+        Vector3 direction = -transform.up;
         RaycastHit hit;
-        _normal = Vector3.up;
-        
-        if (//_jumpCoolDown == 0 && 
-            Physics.BoxCast(transform.position + transform.up * (Height - (Width / 2)), _boxCastHalfExtents, -transform.up, out hit, transform.rotation, Height - Width, _layerMask)
-            && !hit.collider.isTrigger && Vector3.Dot(GetComponent<Rigidbody>().velocity, hit.normal) <= 0)
+        float distance = Height - Width;
+        if (_grounded)
         {
-            
-            // move the camera down when stepping up
-            if (hit.point.y - transform.position.y > 0.1f)
-            {
-                var pos = _playerCamera.position;
-                pos = new Vector3(pos.x, pos.y - (hit.point.y - _rotator.position.y), pos.z);
-                _playerCamera.position = pos;
-            }
-            
+            distance += StepUpDistance;
+        }
+
+        if (Physics.BoxCast(center, _boxCastHalfExtents, direction, out hit, transform.rotation, distance, _layerMask)
+            && !hit.collider.isTrigger && Vector3.Dot(GetComponent<Rigidbody>().velocity, hit.normal) < 0.1)
+        {
+            var pos = _playerCamera.position;
+            pos = new Vector3(pos.x, pos.y - (hit.point.y - _rotator.position.y), pos.z);
+            _playerCamera.position = pos;
+
             // move to collision
             transform.position = new Vector3(transform.position.x, hit.point.y , transform.position.z);
             
@@ -376,6 +375,9 @@ public class FPSWalkMK3 : MonoBehaviour
         else
         {
             AirMovement(moveVector);
+            
+            // apply gravity
+            GetComponent<Rigidbody>().AddForce(Physics.gravity, ForceMode.Acceleration);
         }
     }
     
@@ -388,7 +390,8 @@ public class FPSWalkMK3 : MonoBehaviour
         if(!LockLook)
         {
             // return the camera to it's resting height after stepping up
-            _playerCamera.position = new Vector3(_playerCamera.position.x, Mathf.Min(_rotator.position.y + _cameraHeight, _playerCamera.position.y + Time.deltaTime * CameraStepUpSpeed), _playerCamera.position.z);
+            //_playerCamera.position = new Vector3(_playerCamera.position.x, Mathf.Min(_rotator.position.y + _cameraHeight, _playerCamera.position.y + Time.deltaTime * CameraStepUpSpeed), _playerCamera.position.z);
+            _playerCamera.localPosition = Vector3.MoveTowards(_playerCamera.localPosition, Vector3.up * _cameraHeight, CameraStepUpSpeed * Time.deltaTime);
             
             // jump when appropriate
             if (_grounded && !_sliding && !_skidding && !_jumpLock && !_airJumpLock && Input.GetButton("Jump"))

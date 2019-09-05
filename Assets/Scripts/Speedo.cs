@@ -8,6 +8,7 @@ public class Speedo : MonoBehaviour
     public TextMeshProUGUI Text;
     public Rigidbody Target;
     public bool IgnoreVertical;
+    public bool Round = true; //should this speedometer round to the nearest whole number?
 
     // Start is called before the first frame update
     void Start()
@@ -18,13 +19,21 @@ public class Speedo : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        float speed = 0;
         if (IgnoreVertical)
         {
-            Text.text = Mathf.Round(Vector3.ProjectOnPlane(Target.velocity, Vector3.up).magnitude) + "";
+            speed = Vector3.ProjectOnPlane(Target.velocity, Vector3.up).magnitude;
         }
         else
         {
-            Text.text = Mathf.Round(Target.velocity.magnitude) + "";
+            speed = Target.velocity.magnitude;
         }
+
+        if (Round)
+        {
+            speed = Mathf.Round(speed);
+        }
+
+        Text.text = speed.ToString();
     }
 }
