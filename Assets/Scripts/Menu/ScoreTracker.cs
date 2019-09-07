@@ -6,43 +6,52 @@ using UnityEngine;
 
 public static class ScoreTracker
 {
-    private static IDictionary<int, float> _scores = new Dictionary<int, float>();
+    private static IDictionary<string, float> _scores = new Dictionary<string, float>();
 
-    public static void AddScore(int levelID, float score)
+    static ScoreTracker()
+    {
+        LoadScores();
+    }
+
+    public static void AddScore(int levelID, int gameMode, float score)
     {
         // inefficient to read scores every save, could be changed to game start
         LoadScores();
+
+        string key = levelID + "," + gameMode;
         
-        if (_scores.ContainsKey(levelID))
+        if (_scores.ContainsKey(key))
         {
             float oldscore;
-            _scores.TryGetValue(levelID, out oldscore);
+            _scores.TryGetValue(key, out oldscore);
             if (score < oldscore)
             {
-                _scores.Remove(levelID);
-                _scores.Add(levelID, score);
+                _scores.Remove(key);
+                _scores.Add(key, score);
                 SaveScores();
             }
         }
         else
         {
-            _scores.Add(levelID, score);
+            _scores.Add(key, score);
             SaveScores();
         }
     }
 
-    public static float GetScore(int levelID)
+    public static float GetScore(int levelID, int gameMode)
     {
-        LoadScores();
+        string key = levelID + "," + gameMode;
+
+        //LoadScores(); // not sure why this was here, pretty inefficient to access a file for no reason.
         float score = 0f;
-        if (_scores.ContainsKey(levelID))
+        if (_scores.ContainsKey(key))
         {
-            _scores.TryGetValue(levelID, out score);
+            _scores.TryGetValue(key, out score);
         }
         return score;
     }
 
-    public static void SaveScores()
+    private static void SaveScores()
     {
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Create(Application.dataPath + "/times.sav");
@@ -50,13 +59,13 @@ public static class ScoreTracker
         file.Close();
     }
 
-    public static void LoadScores()
+    private static void LoadScores()
     {
         if (File.Exists(Application.dataPath + "/times.sav"))
         {
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(Application.dataPath + "/times.sav", FileMode.Open);
-            IDictionary<int, float> scores = (IDictionary<int, float>)bf.Deserialize(file);
+            IDictionary<string, float> scores = (IDictionary<string, float>)bf.Deserialize(file);
             /*
             foreach (var i in scores)
             {
@@ -69,7 +78,7 @@ public static class ScoreTracker
         }
         else
         {
-            _scores = new Dictionary<int, float>();
+            _scores = new Dictionary<string, float>();
         }
     }
 }

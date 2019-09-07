@@ -18,7 +18,7 @@ public class ScoreIndicator : MonoBehaviour
 
     public void UpdateText()
     {
-        float score = ScoreTracker.GetScore(levelID);
+        float score = ScoreTracker.GetScore(levelID, GameMode.Get());
         if (score == 0f)
         {
             textMesh.text = "Incomplete";
@@ -26,8 +26,13 @@ public class ScoreIndicator : MonoBehaviour
         }
         else
         {
-            textMesh.text = FloatToTime.Convert(ScoreTracker.GetScore(levelID));
+            textMesh.text = FloatToTime.Convert(ScoreTracker.GetScore(levelID, GameMode.Get()));
             LevelRanks.SetRankIndicator(RankText, score);
         }
+    }
+
+    private void Update()
+    {
+        //UpdateText();
     }
 }

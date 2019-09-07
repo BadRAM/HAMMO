@@ -282,8 +282,14 @@ public class FPSWalkMK3 : MonoBehaviour
                 _sliding = true;
             }
             
+            // bhop if classic mode
+            if (GameMode.Get() == 4 && !_jumpLock && Input.GetButton("Jump"))
+            {
+                TerrainCollide(hit.normal);
+                Jump();
+            }
             // bounce if charged
-            if (_bounceReady && !_sliding)
+            else if (_bounceReady && !_sliding)
             {
                 Bounce();
             }
@@ -306,7 +312,7 @@ public class FPSWalkMK3 : MonoBehaviour
         }
 
         // Charge Bounce
-        if ((!_grounded || _sliding) && !_jumpLock)
+        if ((!_grounded || _sliding) && !_jumpLock && GameMode.Get() != 4)
         {
             if (Input.GetButton("Jump"))
             {
@@ -368,7 +374,7 @@ public class FPSWalkMK3 : MonoBehaviour
 
         //Debug.Log("grounded: " + _grounded + ", sliding: " + _sliding + ", normal: " + _normal);
 
-        if (_grounded && !_sliding)
+        if (_grounded && !_sliding && GameMode.Get() != 5)
         {
             GroundMovement(moveVector);
         }

@@ -17,7 +17,7 @@ public class Goal : MonoBehaviour
                 }
             }
 
-            if (l)
+            if (l || GameMode.Get() == 2)
             {
                 PlayerLink.playerLink.Goal();
             }

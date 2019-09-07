@@ -52,8 +52,8 @@ public class Player : MonoBehaviour
     {
         WinScreen.enabled = true;
         WinTime.text = FloatToTime.Convert(_time);
-        ScoreTracker.AddScore(SceneManager.GetActiveScene().buildIndex, _time);
-        float topscore = ScoreTracker.GetScore(SceneManager.GetActiveScene().buildIndex);
+        ScoreTracker.AddScore(SceneManager.GetActiveScene().buildIndex, GameMode.Get(), _time);
+        float topscore = ScoreTracker.GetScore(SceneManager.GetActiveScene().buildIndex, GameMode.Get());
         HighScoreTime.text = FloatToTime.Convert(topscore);
         NewRecord.enabled = _time == topscore;
         FindObjectOfType<LevelRanks>().SetRankIndicator(WinRank, _time);
@@ -172,7 +172,7 @@ public class Player : MonoBehaviour
         
         // show the Start Screen
         StartScreen.enabled = true;
-        StartScreenRanks.text = FindObjectOfType<LevelRanks>().GetRankPreview(ScoreTracker.GetScore(SceneManager.GetActiveScene().buildIndex));
+        StartScreenRanks.text = FindObjectOfType<LevelRanks>().GetRankPreview(ScoreTracker.GetScore(SceneManager.GetActiveScene().buildIndex, GameMode.Get()));
 
         GetComponent<PlayerWeapon>().Restart();
 
@@ -223,6 +223,11 @@ public class Player : MonoBehaviour
         _enemies = GameObject.FindGameObjectsWithTag("Enemy");
         _maxEnemies = _enemies.Length;
         _spawnPoint = transform.position;
+
+        if (GameMode.Get() == 3)
+        {
+            StartingHammo = 1;
+        }
         
         Restart(true);
     }
@@ -232,19 +237,25 @@ public class Player : MonoBehaviour
         _time += Time.deltaTime;
 
         RestartPrompt.enabled = transform.position.y < -50;
+
+        if (GameMode.Get() == 1)
+        {
+            Hammo = 10;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Time.timeScale != 0 && Input.GetButtonDown("cheat"))
-        {
-            IncrementHammo(10);
-            _time += 1000;
+
+        if (GameMode.Get() == 1)
+        { 
+            Hammometer.text = "";
         }
-        
-        Hammometer.text = Hammo.ToString();
-        //Timer.text = _time.ToString();
+        else
+        {
+            Hammometer.text = Hammo.ToString();
+        }
 
         Timer.text = FloatToTime.Convert(_time);
 

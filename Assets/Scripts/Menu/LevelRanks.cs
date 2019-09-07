@@ -44,6 +44,34 @@ public class LevelRanks : MonoBehaviour
         }
     }
 
+    public string GetRankText(float time)
+    {
+        if (time == 0f)
+        {
+            return "";
+        }
+        else if (time < SRank)
+        {
+            return "S";
+        }
+        else if (time < ARank)
+        {
+            return "A";
+        }
+        else if (time < BRank)
+        {
+            return "B";
+        }
+        else if (time < CRank)
+        {
+            return "C";
+        }
+        else
+        {
+            return "D";
+        }
+    }
+
     public string GetRankPreview(float time)
     {
         // only show S rank time if A rank has been achieved

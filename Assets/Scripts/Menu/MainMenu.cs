@@ -25,6 +25,8 @@ public class MainMenu : MonoBehaviour
 
     public void LevelSelect()
     {
+        GameMode.SetID(-1);
+        GameMode.SetMax(0);
         TopMenuCanvas.enabled = false;
         LevelSelectCanvas.enabled = true;
         SettingsCanvas.enabled = false;
