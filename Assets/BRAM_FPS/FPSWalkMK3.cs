@@ -77,7 +77,8 @@ public class FPSWalkMK3 : MonoBehaviour
 
     private void Jump()
     {
-        float v = Vector3.Project(GetComponent<Rigidbody>().velocity, _rotator.up).magnitude;
+        Vector3 v = Vector3.ProjectOnPlane(GetComponent<Rigidbody>().velocity, _rotator.up);
+        GetComponent<Rigidbody>().velocity = v;
         
         GetComponent<Rigidbody>().AddForce(_rotator.up * JumpForce, ForceMode.VelocityChange);
 
@@ -87,22 +88,22 @@ public class FPSWalkMK3 : MonoBehaviour
         GetComponent<AudioSource>().PlayOneShot(JumpSound);
     }
 
-    private void Bounce()
+    private void Bounce(Vector3 normal)
     {
         // calculate vertical velocity
         float v = Vector3.Project(GetComponent<Rigidbody>().velocity, _rotator.up).magnitude;
         
         // cancel vertical velocity
         Rigidbody r = GetComponent<Rigidbody>();
-        r.velocity = Vector3.ProjectOnPlane(r.velocity, Vector3.up);
+        r.velocity = Vector3.ProjectOnPlane(r.velocity, normal);
         
         // calculate and apply bounce force
         float f = Mathf.Max(JumpForce, v * BounceEffectiveness) * (_bounceCharge / BounceChargeTime);
-        GetComponent<Rigidbody>().AddForce(_rotator.up * f, ForceMode.VelocityChange);
+        GetComponent<Rigidbody>().AddForce(normal * f, ForceMode.VelocityChange);
         
         // manage state
         _grounded = false;
-        Debug.Log("Bounced after " + -_jumpCounter * Time.fixedDeltaTime + " seconds."); 
+        //Debug.Log("Bounced after " + -_jumpCounter * Time.fixedDeltaTime + " seconds."); 
         _jumpCounter = 0;
 
         if (Input.GetButton("Jump"))
@@ -283,15 +284,23 @@ public class FPSWalkMK3 : MonoBehaviour
             }
             
             // bhop if classic mode
-            if (GameMode.Get() == 4 && !_jumpLock && Input.GetButton("Jump"))
+            if (GameMode.Get() == 4 && !_jumpLock && !_sliding && Input.GetButton("Jump"))
             {
-                TerrainCollide(hit.normal);
                 Jump();
             }
             // bounce if charged
             else if (_bounceReady && !_sliding)
             {
-                Bounce();
+                if (hit.transform.CompareTag("Enemy"))
+                {
+                    hit.transform.GetComponent<Enemy>().Kill();
+                    GetComponent<Player>().IncrementHammo(2);
+                    Bounce(_rotator.up);
+                }
+                else
+                {
+                    Bounce(hit.normal);
+                }
             }
             else
             {

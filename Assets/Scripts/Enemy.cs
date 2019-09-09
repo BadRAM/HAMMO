@@ -11,7 +11,7 @@ public class Enemy : MonoBehaviour
 
     //public float StunTimer;
     public bool Stunned;
-    [SerializeField] private Vector3 _startPos;
+    private Vector3 _startPos;
     public Collider StandingHitBox;
     public Collider StunnedHitBox;
     public bool Alerted;
@@ -21,16 +21,16 @@ public class Enemy : MonoBehaviour
     public float AttackRange = 10;
     public ParticleSystem ChargeParticles;
     public ParticleSystem StunParticles;
+    public ParticleSystem DeathParticle;
     private int _layerMask;
     private float _attackTimer = 3;
     private bool _attacking;
     private float _stunTimer;
     public float ChargeDuration;
-    public AudioClip ChargeSound;
-    public AudioClip FireSound;
-    public AudioClip DeathSound;
-    public AudioSource AudioSource;
-    public GameObject DeathEffect;
+    public AudioSource ChargeSound;
+    public AudioSource FireSound;
+    public AudioSource DeathSound;
+    public GameObject DisableOnDeath;
     public GameObject Beam;
     public Transform CenterOfMass;
 
@@ -50,8 +50,14 @@ public class Enemy : MonoBehaviour
         GetComponent<Rigidbody>().velocity = Vector3.zero;
         GetComponent<Rigidbody>().isKinematic = false;
         
+        DisableOnDeath.SetActive(true);
+        
+        ChargeParticles.Stop();
         ChargeParticles.Clear();
+        StunParticles.Stop();
         StunParticles.Clear();
+        DeathParticle.Stop();
+        DeathParticle.Clear();
         
         Alive = true;
         Alerted = false;
@@ -74,13 +80,8 @@ public class Enemy : MonoBehaviour
         
     }
 
-    void FixedUpdate()
+    void behavior()
     {
-        if (Target == null)
-        {
-            Target = PlayerLink.playerLink.transform;
-        }
-
         if (transform.position.y < -50)
         {
             PlayerLink.playerLink.IncrementHammo(1);
@@ -88,7 +89,7 @@ public class Enemy : MonoBehaviour
         }
 
         if (Stunned && _stunTimer == 0 && Vector3.Dot(GetComponent<Rigidbody>().velocity, transform.up) <= 0
-        && Physics.Raycast(transform.position + transform.up, -transform.up, 1.01f, _layerMask))
+            && Physics.Raycast(transform.position + transform.up, -transform.up, 1.01f, _layerMask))
         {
             Recover();
         }
@@ -102,7 +103,7 @@ public class Enemy : MonoBehaviour
         if (_attacking && _attackTimer <= 0)
         {
             _attacking = false;
-            AudioSource.PlayOneShot(FireSound);
+            FireSound.Play();
             GameObject beam = Instantiate(Beam);
             beam.GetComponent<Beam>().startPoint = transform.position + Vector3.up;
 
@@ -125,13 +126,26 @@ public class Enemy : MonoBehaviour
                 GetComponent<NavMeshAgent>().SetDestination(transform.position);
                 _attackTimer = ChargeDuration;
                 _attacking = true;
-                AudioSource.PlayOneShot(ChargeSound);
+                ChargeSound.Play();
                 ChargeParticles.Play();
             }
             else
             {
                 GetComponent<NavMeshAgent>().SetDestination(Target.transform.position);
             }
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (Target == null)
+        {
+            Target = PlayerLink.playerLink.transform;
+        }
+
+        if (Alive)
+        {
+            behavior();
         }
 
         _attackTimer = Mathf.Max(0, _attackTimer - Time.deltaTime);
@@ -154,10 +168,20 @@ public class Enemy : MonoBehaviour
 
     public void Kill()
     {
-        AudioSource.PlayOneShot(DeathSound);
-        Instantiate(DeathEffect, transform.position, transform.rotation);
+        GetComponent<Rigidbody>().velocity = Vector3.zero;
+        GetComponent<Rigidbody>().isKinematic = false;
+        
+        ChargeSound.Stop();
+        DeathSound.Play();
+        DisableOnDeath.SetActive(false);
         Alive = false;
-        gameObject.SetActive(false);
+        
+        ChargeParticles.Stop();
+        ChargeParticles.Clear();
+        StunParticles.Stop();
+        StunParticles.Clear();
+        
+        DeathParticle.Play();
     }
 
     public void Stun()
@@ -167,7 +191,7 @@ public class Enemy : MonoBehaviour
         GetComponent<Rigidbody>().isKinematic = false;
         StandingHitBox.enabled = false;
         StunnedHitBox.enabled = true;
-        AudioSource.Stop();
+        ChargeSound.Stop();
         ChargeParticles.Stop();
         StunParticles.Play();
         _attacking = false;

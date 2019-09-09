@@ -10,7 +10,6 @@ public class GameModeButton : MonoBehaviour
     public bool HiddenOnDisable;
     public string UnlockText;
     public int GMode;
-    private int _currentMaxEnabled;
     private bool _enabled;
 
     public void SetGameMode()
@@ -46,18 +45,13 @@ public class GameModeButton : MonoBehaviour
 
     private void Update()
     {
-        int max = GameMode.GetMax();
-        if (_currentMaxEnabled != max)
+        if (GMode > GameMode.GetMax())
         {
-            _currentMaxEnabled = max;
-            if (GMode > max)
-            {
-                SetEnabled(false);
-            }
-            else
-            {
-                SetEnabled(true);
-            }
+            SetEnabled(false);
+        }
+        else
+        {
+            SetEnabled(true);
         }
 
         if (_enabled)

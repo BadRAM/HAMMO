@@ -11,7 +11,7 @@ public class Goal : MonoBehaviour
             bool l = true;
             foreach (GameObject i in GameObject.FindGameObjectsWithTag("Enemy"))
             {
-                if (i.activeSelf)
+                if (i.GetComponent<Enemy>().Alive)
                 {
                     l = false;
                 }

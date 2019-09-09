@@ -262,7 +262,7 @@ public class Player : MonoBehaviour
         int enemyCount = 0;
         foreach (GameObject i in GameObject.FindGameObjectsWithTag("Enemy"))
         {
-            if (i.activeSelf)
+            if (i.GetComponent<Enemy>().Alive)
             {
                 enemyCount += 1;
             }

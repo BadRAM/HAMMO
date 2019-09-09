@@ -72,7 +72,7 @@ public class Checkpoint : MonoBehaviour
             bool l = true;
             foreach (Enemy i in RequiredEnemies)
             {
-                if (i.gameObject.activeSelf)
+                if (i.GetComponent<Enemy>().Alive)
                 {
                     l = false;
                 }

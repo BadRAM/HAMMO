@@ -6,5 +6,7 @@ using UnityEngine;
 [Serializable]
 public class Settings
 {
-    public float Sensitivity;
+    public float Sensitivity = 2f;
+    public float SFXVolume;
+    public float MusicVolume;
 }
