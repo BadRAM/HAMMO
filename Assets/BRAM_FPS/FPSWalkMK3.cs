@@ -245,7 +245,7 @@ public class FPSWalkMK3 : MonoBehaviour
         _cameraX = _spawnFacing;
         
         // set the camera sensitivity
-        LookSensitivity = SettingsManager.LoadSensitivity();
+        LookSensitivity = SettingsManager.CurrentSettings.Sensitivity;
 
         // set the boxcast parameters
         _boxCastHalfExtents = new Vector3(Width / 2, Width / 2, Width / 2);

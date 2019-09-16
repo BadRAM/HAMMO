@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Security.Policy;
 using UnityEngine;
 using UnityEngine.AI;
 using Vector3 = UnityEngine.Vector3;
@@ -169,7 +170,7 @@ public class Enemy : MonoBehaviour
     public void Kill()
     {
         GetComponent<Rigidbody>().velocity = Vector3.zero;
-        GetComponent<Rigidbody>().isKinematic = false;
+        GetComponent<Rigidbody>().isKinematic = true;
         
         ChargeSound.Stop();
         DeathSound.Play();

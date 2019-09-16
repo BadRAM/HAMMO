@@ -26,6 +26,11 @@ public static class SettingsManager
         {
             // create default settings.
             CurrentSettings = new Settings();
+            CurrentSettings.Res = new int[]
+            {
+                Screen.resolutions[Screen.resolutions.Length - 1].width,
+                Screen.resolutions[Screen.resolutions.Length - 1].height
+            };
         }
     }
 
@@ -42,16 +47,9 @@ public static class SettingsManager
         CurrentSettings = newSettings;
         SaveSettings();
     }
-    
-    public static float LoadSensitivity()
-    {
-        return CurrentSettings.Sensitivity;
-    }
 
-    public static void SaveSensitivity(float sensitivity)
+    public static void ApplyResolution()
     {
-        CurrentSettings.Sensitivity = sensitivity;
-        SaveSettings();
+        Screen.SetResolution(CurrentSettings.Res[0], CurrentSettings.Res[1], CurrentSettings.FullScreen);
     }
-    
 }

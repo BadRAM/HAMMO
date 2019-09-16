@@ -13,6 +13,7 @@ public class MainMenu : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        SettingsManager.ApplyResolution();
         Mixer.SetFloat("MusicVol",-Mathf.Pow((-SettingsManager.CurrentSettings.MusicVolume + 1) * 8, 2));
         Mixer.SetFloat("SFXVol", -Mathf.Pow((-SettingsManager.CurrentSettings.SFXVolume + 1) * 8, 2));
         TopMenuCanvas.enabled = true;

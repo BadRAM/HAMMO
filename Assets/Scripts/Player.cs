@@ -67,7 +67,7 @@ public class Player : MonoBehaviour
         int e = 0;
         foreach (GameObject i in _enemies)
         {
-            if (i.activeSelf)
+            if (i.GetComponent<Enemy>().Alive)
             {
                 e++;
             }

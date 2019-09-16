@@ -84,6 +84,10 @@ public class Rocket : MonoBehaviour
 
         foreach (GameObject i in GameObject.FindGameObjectsWithTag("Enemy"))
         {
+            if (!i.GetComponent<Enemy>().Alive)
+            {
+                continue;
+            }
             Vector3 ipos = i.GetComponent<Rigidbody>().centerOfMass + i.transform.position;
             if (Vector3.Distance(transform.position, ipos) < BlastRadius 
                 && !Physics.Linecast(transform.position, ipos, _layerMaskTerrain))
