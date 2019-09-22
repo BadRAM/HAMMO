@@ -11,13 +11,14 @@ public class LevelMenuItem : MonoBehaviour
 {
     public string LevelName;
     public int LevelID;
+    public string Description;
     public GameObject Ranks;
     private LevelRanks _ranks;
     public TextMeshProUGUI Name;
     public TextMeshProUGUI Time;
     public TextMeshProUGUI Rank;
     private Button _button;
-    
+
 
     // Start is called before the first frame update
     void Start()
@@ -62,6 +63,8 @@ public class LevelMenuItem : MonoBehaviour
     public void SelectLevel()
     {
         GameMode.SetID(LevelID);
+
+        GameMode.SetDescription(Description);
 
         switch (_ranks.GetRankText(ScoreTracker.GetScore(LevelID, 0)))
         {

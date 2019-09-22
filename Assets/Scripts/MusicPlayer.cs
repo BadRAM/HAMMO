@@ -1,25 +1,46 @@
 ﻿using UnityEngine;
 using System.Collections;
- 
+using System.Collections.Generic;
+
 [RequireComponent(typeof(AudioSource))]
 public class MusicPlayer : MonoBehaviour
 {
-    public AudioClip engineStartClip;
-    public AudioClip engineLoopClip;
-    public AudioSource Source;
+    public MusicTrack[] MusicTracks;
+    public int Track;
+    private AudioSource _source;
     void Start()
     {
-        Source =GetComponent<AudioSource>();
-        Source.loop = true;
-        StartCoroutine(playEngineSound());
+        if (!MusicManager.HasPlayerSpawned)
+        {
+            MusicManager.HasPlayerSpawned = true;
+            MusicManager.MusicPlayer = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+        _source = GetComponent<AudioSource>();
+        _source.loop = true;
+        StartCoroutine(PlayMusic());
+    }
+
+    public void ChangeTrack(int track)
+    {
+        StopCoroutine(PlayMusic());
+        Track = track;
+        StartCoroutine(PlayMusic());
     }
  
-    IEnumerator playEngineSound()
+    IEnumerator PlayMusic()
     {
-        Source.clip = engineStartClip;
-        Source.Play();
-        yield return new WaitForSeconds(Source.clip.length);
-        Source.clip = engineLoopClip;
-        Source.Play();
+        if (MusicTracks[Track].IntroClip != null)
+        {
+            _source.clip = MusicTracks[Track].IntroClip;
+            _source.Play();
+            yield return new WaitForSecondsRealtime(_source.clip.length);
+        }
+        _source.clip = MusicTracks[Track].LoopClip;
+        _source.Play();
     }
 }

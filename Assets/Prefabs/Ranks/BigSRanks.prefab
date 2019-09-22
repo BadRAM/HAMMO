@@ -43,12 +43,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4ff3581fbe08ed43bc6bf7be207ebce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SRank: 12
+  SRank: 18
   SColor: {r: 1, g: 0.8705883, b: 0.44705886, a: 1}
-  ARank: 16
+  ARank: 22
   AColor: {r: 0.31007475, g: 0.5757955, b: 0.9811321, a: 1}
-  BRank: 20
+  BRank: 30
   BColor: {r: 0.23529413, g: 0.8196079, b: 0.40784317, a: 1}
-  CRank: 30
+  CRank: 50
   CColor: {r: 0.6320754, g: 0.24150053, b: 0.24150053, a: 1}
   DColor: {r: 0.5887631, g: 0.17328231, b: 0.6226415, a: 1}

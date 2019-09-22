@@ -16,6 +16,7 @@ public class PlayButton : MonoBehaviour
         if (id != -1)
         {
             SceneManager.LoadSceneAsync(id);
+            MusicManager.ChangeTrack(1); // change this to support level specific music
         }
     }
 

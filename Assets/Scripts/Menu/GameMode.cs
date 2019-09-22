@@ -16,6 +16,18 @@ public static class GameMode
     private static int _maxEnabled;
     private static int _levelID = -1;
 
+    private static string[] _descriptions =
+    {
+        "Standard - All levels and ranks are balanced for this mode.",
+        "Turbo - Unlimited Hammo",
+        "Stealth - Levels can be completed without killing pawns.",
+        "Scavenger - Start with one Hammo. not all levels are beatable.",
+        "Classic - Bounce replaced with the Ludum Dare version's Bhop.",
+        "Frictionless - Floor slippery when wet."
+    };
+
+    private static string _levelDescription;
+
     public static int Get()
     {
         return _mode;
@@ -52,6 +64,16 @@ public static class GameMode
     public static void SetID(int id)
     {
         _levelID = id;
+    }
+
+    public static string GetDescription()
+    {
+        return _levelDescription + "\n\n" + _descriptions[_mode];
+    }
+
+    public static void SetDescription(string description)
+    {
+        _levelDescription = description;
     }
 
 }

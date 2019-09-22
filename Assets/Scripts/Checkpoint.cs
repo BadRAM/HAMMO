@@ -13,7 +13,7 @@ public class Checkpoint : MonoBehaviour
     private bool _previousCheckpointActive;
 
     public ParticleSystem LockParticles;
-    public ParticleSystem UnlockParticles;
+    //public ParticleSystem UnlockParticles;
     public ParticleSystem UnactivatedParticles;
     public ParticleSystem ActivationParticles;
 
@@ -27,18 +27,18 @@ public class Checkpoint : MonoBehaviour
         // set status
         _untriggered = true;
         _active = false;
-        GetComponent<MeshCollider>().enabled = false;
+        GetComponent<Collider>().enabled = false;
 
         _previousCheckpointActive = PreviousCheckpoint == null;
 
         // reset all particle effects
         LockParticles.Play();
-        UnlockParticles.Stop();
-        UnlockParticles.Clear();
+        //UnlockParticles.Stop();
+        //UnlockParticles.Clear();
         UnactivatedParticles.Stop();
         UnactivatedParticles.Clear();
-        ActivationParticles.Stop();
-        ActivationParticles.Clear();
+        //ActivationParticles.Stop();
+        //ActivationParticles.Clear();
     }
 
     public void DestroyEnemies()
@@ -61,7 +61,21 @@ public class Checkpoint : MonoBehaviour
             PlayerLink.playerLink.SetCheckpoint(GetComponent<Checkpoint>());
             _untriggered = false;
             UnactivatedParticles.Stop();
-            ActivationParticles.Play();
+
+            ParticleSystem.Particle[] particles = new ParticleSystem.Particle[UnactivatedParticles.main.maxParticles];
+            int liveParticles = UnactivatedParticles.GetParticles(particles);
+            for(int i = 0; i < liveParticles; i++)
+            {
+                ParticleSystem.EmitParams e = new ParticleSystem.EmitParams();
+                e.position = particles[i].position;
+                ActivationParticles.Emit(e, 1);
+                //Debug.Log("emitted particle");
+            }
+            
+            UnactivatedParticles.Clear();
+            //ActivationParticles.Play();
+            
+            
         }
     }
 
@@ -82,9 +96,10 @@ public class Checkpoint : MonoBehaviour
             {
                 _active = true;
                 LockParticles.Stop();
-                UnlockParticles.Play();
+                LockParticles.Clear();
+                //UnlockParticles.Play();
                 UnactivatedParticles.Play();
-                GetComponent<MeshCollider>().enabled = true;
+                GetComponent<Collider>().enabled = true;
             }
         }
         else if (!_previousCheckpointActive && PreviousCheckpoint._active)
