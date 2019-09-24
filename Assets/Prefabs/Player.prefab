@@ -3078,7 +3078,7 @@ MonoBehaviour:
   RocketCooldown: 0.5
   GrenadeCrosshair: {fileID: 451291589}
   BeamCrosshair: {fileID: 7669846445773543856}
-  RocketLaunchSound: {fileID: 0}
+  RocketFireSound: {fileID: 8300000, guid: f30e4dd502037ad43860e640f4ea1d26, type: 3}
   BeamFireSound: {fileID: 8300000, guid: b15c632095ad4494ead1a86f41ab5b2d, type: 3}
 --- !u!82 &246871620
 AudioSource:

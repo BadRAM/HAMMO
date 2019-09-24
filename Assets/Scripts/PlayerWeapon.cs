@@ -16,7 +16,7 @@ public class PlayerWeapon : MonoBehaviour
     private float _grenadeActive;
     public GameObject GrenadeCrosshair;
     public GameObject BeamCrosshair;
-    public AudioClip RocketLaunchSound;
+    public AudioClip RocketFireSound;
     public AudioClip BeamFireSound;
     private LayerMask _layerMask;
 
@@ -37,7 +37,7 @@ public class PlayerWeapon : MonoBehaviour
     public void Fire()
     {
 
-        if (WeaponInUse == 1)
+        if (WeaponInUse == 1) // if beam weapon is selected
         {
             GetComponent<AudioSource>().PlayOneShot(BeamFireSound);
             GameObject beam = Instantiate(Beam);
@@ -73,7 +73,7 @@ public class PlayerWeapon : MonoBehaviour
                 beam.GetComponent<Beam>().endPoint = BeamStartPoint.position + BeamStartPoint.forward * 10000f;
             }
         }
-        else
+        else // if rocket weapon is selected
         {
             if (_rocketHeat == 0)
             {
@@ -81,6 +81,7 @@ public class PlayerWeapon : MonoBehaviour
                 GameObject r = Instantiate(Rocket, RocketStartPoint.position, BeamStartPoint.rotation);
                 r.GetComponent<Rocket>().Player = GetComponent<Player>();
                 GetComponent<Player>().IncrementHammo(-1);
+                GetComponent<AudioSource>().PlayOneShot(RocketFireSound);
             }
         }
     }
