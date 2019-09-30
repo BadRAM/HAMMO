@@ -364,14 +364,8 @@ public class FPSWalkMK3 : MonoBehaviour
         BounceReady.enabled = _bounceReady;
 
         // turn the smoke trail on or off if the player is in the air or not
-        if (!_grounded && !SmokeTrail.isPlaying)
-        {
-            SmokeTrail.Play();
-        }
-        if (_grounded && SmokeTrail.isPlaying)
-        {
-            SmokeTrail.Pause();
-        }
+        var emission = SmokeTrail.emission;
+        emission.enabled = !_grounded;
 
         // accelerate the player according to input
 

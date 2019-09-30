@@ -8,13 +8,15 @@ public class Checkpoint : MonoBehaviour
     public Checkpoint PreviousCheckpoint;
     public List<Enemy> RequiredEnemies;
     private bool _untriggered = true;
-    private bool _active;
+    private bool _locked;
     private bool _previousCheckpointActive;
 
     public ParticleSystem LockParticles;
     //public ParticleSystem UnlockParticles;
     public ParticleSystem UnactivatedParticles;
     public ParticleSystem ActivationParticles;
+
+    public AudioClip ActivationSound;
 
     private void Start()
     {
@@ -25,7 +27,7 @@ public class Checkpoint : MonoBehaviour
     {
         // set status
         _untriggered = true;
-        _active = false;
+        _locked = false;
         GetComponent<Collider>().enabled = false;
 
         _previousCheckpointActive = PreviousCheckpoint == null;
@@ -55,7 +57,7 @@ public class Checkpoint : MonoBehaviour
     
     private void OnTriggerStay(Collider other)
     {
-        if (_active && _untriggered && _previousCheckpointActive && other.CompareTag("Player"))
+        if (_locked && _untriggered && _previousCheckpointActive && other.CompareTag("Player"))
         {
             PlayerLink.playerLink.SetCheckpoint(GetComponent<Checkpoint>());
             _untriggered = false;
@@ -74,13 +76,13 @@ public class Checkpoint : MonoBehaviour
             UnactivatedParticles.Clear();
             //ActivationParticles.Play();
             
-            
+            GetComponent<AudioSource>().PlayOneShot(ActivationSound);
         }
     }
 
     private void FixedUpdate()
     {
-        if (!_active && _previousCheckpointActive)
+        if (!_locked && _previousCheckpointActive)
         {
             bool l = true;
             foreach (Enemy i in RequiredEnemies)
@@ -93,7 +95,7 @@ public class Checkpoint : MonoBehaviour
 
             if (l)
             {
-                _active = true;
+                _locked = true;
                 LockParticles.Stop();
                 LockParticles.Clear();
                 //UnlockParticles.Play();
@@ -101,7 +103,7 @@ public class Checkpoint : MonoBehaviour
                 GetComponent<Collider>().enabled = true;
             }
         }
-        else if (!_previousCheckpointActive && PreviousCheckpoint._active)
+        else if (!_previousCheckpointActive && PreviousCheckpoint._locked)
         {
             _previousCheckpointActive = true;
         }
