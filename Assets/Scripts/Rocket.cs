@@ -63,6 +63,14 @@ public class Rocket : MonoBehaviour
         }
     }
 
+    private void _addExplosionForce(Rigidbody target)
+    {
+        Vector3 delta = (target.centerOfMass + target.transform.position) - transform.position;
+        Vector3 force = delta.normalized * BlastStrength * (Mathf.Max(0, BlastRadius - delta.magnitude) / BlastRadius);
+        target.AddForce(force, ForceMode.VelocityChange);
+        Debug.Log("added force of " + force.magnitude + " from delta of " + delta.magnitude + " and distance factor of " + Mathf.Max(0, BlastRadius - delta.magnitude) );
+    }
+
     private void Collide (RaycastHit collision)
     {
         if (collision.transform.CompareTag("Enemy"))
@@ -79,8 +87,8 @@ public class Rocket : MonoBehaviour
             collision.transform.GetComponent<Enemy>().Kill();
         }
 
-        Player.transform.GetComponent<Rigidbody>().AddExplosionForce(BlastStrength, transform.position, BlastRadius, 0f,
-            ForceMode.VelocityChange);
+        //Player.transform.GetComponent<Rigidbody>().AddExplosionForce(BlastStrength, transform.position, BlastRadius, 0f, ForceMode.VelocityChange);
+        _addExplosionForce(Player.GetComponent<Rigidbody>());
 
         foreach (GameObject i in GameObject.FindGameObjectsWithTag("Enemy"))
         {
@@ -93,8 +101,11 @@ public class Rocket : MonoBehaviour
                 && !Physics.Linecast(transform.position, ipos, _layerMaskTerrain))
             {
                 i.GetComponent<Enemy>().Stun();
+                /*
                 i.GetComponent<Rigidbody>().AddExplosionForce(BlastStrength, transform.position, BlastRadius,
                     UpwardsAdjustment, ForceMode.VelocityChange);
+                    */
+                _addExplosionForce(i.GetComponent<Rigidbody>());
             }
         }
 
